@@ -1,1 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+
+
+@font-face {
+    font-family: 'HelveticaNowVar';
+    src: url('assets/fonts/HelveticaNowVar.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  * {
+    font-family: 'HelveticaNowVar', sans-serif;
+  }
