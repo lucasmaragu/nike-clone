@@ -1,10 +1,44 @@
-<div>
+<div class="flex flex-col justify-center  items-center gap-y-5">
     <img src="landing-image.jpg" alt="Landing Page">
-    <div class="flex flex-col justify-center py-10 items-center gap-y-5">
+    <div class="flex flex-col justify-center py-6 items-center gap-y-5">
         <h1>Adéntrate en el corazón de Nápoles con Nike Field General, un clásico total y el lienzo eprfecto para lucir tu estilo personal.</h1>
         <button class="bg-black text-white font-bold py-2 px-4 rounded-full">
             Descubrir la colección
         </button>
     </div>
-    
+    <div class="w-[90%]">
+    <app-carrousel  [title]="'Lo mejor y más nuevo'" 
+    [products]="[
+      { src: 'carrousels/carrousel-1-1.png', alt: 'Nike United Pack', title: 'Nike United Pack' },
+      { src: 'carrousels/carrousel-1-2.png', alt: 'Colección Nike 25.7', title: 'Colección Nike 25.7' },
+      { src: 'carrousels/carrousel-1-3.png', alt: 'Cosmic Runner', title: 'Cosmic Runner' }
+    ]">
+    </app-carrousel>
+    <app-carrousel  [title]="'Compra nuestros iconos'" 
+    [products]="[
+      { src: 'carrousels/carrousel-2-1.png', alt: 'Air Max', title: 'Air Max' },
+      { src: 'carrousels/carrousel-2-2.png', alt: 'Y2K', title: 'Y2K' },
+      { src: 'carrousels/carrousel-2-3.png', alt: 'Air Force 1', title: 'Air Force 1' }
+    ]">
+    </app-carrousel>
+    <app-carrousel [title]="'Novedades de la semana'" 
+    [products]="[
+      { src: 'carrousels/carrousel-3-1.png', alt: 'Nike Pegasus Premium', title: 'Nike Pegasus Premium' },
+      { src: 'carrousels/carrousel-3-2.png', alt: 'Air Jordan 1 Low SE', title: 'Air Jordan 1 Low SE' },
+      { src: 'carrousels/carrousel-3-3.png', alt: 'Nike Air Max Dn8', title: 'Nike Air Max Dn8' }
+    ]"></app-carrousel>
+    <app-carrousel [title]="'Descubre más'" 
+    [products]="[
+      { src: 'carrousels/carrousel-4-1.jpg', alt: 'Mujer', title: 'Mujer' },
+      { src: 'carrousels/carrousel-4-2.jpg', alt: 'Air Jordan 1 Low SE', title: 'Hombre' },
+      { src: 'carrousels/carrousel-4-3.jpg', alt: 'Niño/a', title: 'Niño/a' }
+    ]"></app-carrousel> 
+    <app-carrousel [title]="'Descubre más'" 
+    [products]="[
+      { src: 'carrousels/carrousel-5-1.png', alt: 'Mujer', title: 'Tu acceso exclusivo' },
+      { src: 'carrousels/carrousel-5-2.jpg', alt: 'Air Jordan 1 Low SE', title: 'Cómo te damos las gracias' },
+      { src: 'carrousels/carrousel-5-3.jpg', alt: 'Niño/a', title: 'Muévete como quieras' }
+    ]">
+    </app-carrousel>
+</div>
 </div>
