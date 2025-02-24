@@ -1,0 +1,30 @@
+<footer class="w-full px-12">
+    <hr class="border-gray-200 my-15">
+    <div class="w-full flex" >
+    <div class="w-[70%] flex gap-x-45  text-[14px] ">
+        @for(fila of filasFooter; track fila){
+        <div class="inline-block ">
+            <div class="font-bold">{{ fila.titulo }}</div>
+            <ul class="list-none mt-10 text-gray-500 gap-y-4 font-bold flex flex-col">
+                @for(palabra of fila.palabras; track palabra){
+                <li class="cursor-pointer">{{ palabra }}</li>
+                }
+            </ul>
+        </div>
+        }
+    </div>
+    <div class="w-[30%] flex text-gray-500 font-bold text-sm justify-end">
+        <div class="flex flex-row">
+            <div class="mt-0.5">
+            <svg aria-hidden="true"  class="css-npy3on" focusable="false" viewBox="0 0 24 24" role="img" width="18px" height="18px" fill="none"><path stroke="currentColor" stroke-miterlimit="10" stroke-width="1.5" d="M21.75 12A9.75 9.75 0 0112 21.75M21.75 12A9.75 9.75 0 0012 2.25M21.75 12c0 2.071-4.365 3.75-9.75 3.75S2.25 14.071 2.25 12m19.5 0c0-2.071-4.365-3.75-9.75-3.75S2.25 9.929 2.25 12M12 21.75A9.75 9.75 0 012.25 12M12 21.75c2.9 0 5.25-4.365 5.25-9.75S14.9 2.25 12 2.25m0 19.5c-2.9 0-5.25-4.365-5.25-9.75S9.1 2.25 12 2.25M2.25 12A9.75 9.75 0 0112 2.25"></path></svg>
+        </div>
+        <h1 class="ml-1">España</h1></div>
+
+    </div>
+    </div>
+    <div class="flex flex-row py-15 text-gray-500 text-sm font-bold gap-x-10">
+        @for(text of footerText; track text){
+        <p class="text-gray-500 text-sm mt-5">{{ text }}</p>
+        }
+    </div>
+</footer>
