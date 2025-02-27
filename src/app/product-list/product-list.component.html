@@ -1,0 +1,45 @@
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8 text-gray-900">Productos</h1>
+  
+
+    
+  
+
+    <div *ngIf="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+      <p>{{ error }}</p>
+    </div>
+  
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+     
+      <div *ngFor="let product of getMockProducts()" class="group">
+     
+        <div class="bg-gray-50 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg">
+    
+          <div class="relative aspect-square overflow-hidden bg-gray-100">
+            
+            <img 
+              [src]="product.image_url" 
+              [alt]="product.name" 
+              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            >
+          </div>
+          
+          
+          <div class="p-4">
+            <h2 class="text-lg font-bold text-gray-900 mb-1">{{ product.name }}</h2>
+            <p class="text-sm text-gray-600 mb-1">{{ product.type }}</p>
+            <p class="text-sm text-gray-600 mb-2">{{ product.colors_available }} colores</p>
+            <p class="text-lg font-bold text-gray-900">{{ product.price | currency:'EUR':'symbol':'1.2-2' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Empty state -->
+    <div *ngIf="!loading && !error && products.length === 0" class="text-center py-20">
+      <p class="text-xl text-gray-600">No hay productos disponibles</p>
+    </div>
+  </div>
+  
+  
