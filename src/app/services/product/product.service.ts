@@ -41,15 +41,10 @@ export class ProductService {
 
   products$ = this.productsSubject.asObservable(); 
 
-
-  /**
-   * Cargar productos desde Supabase y actualizar el BehaviorSubject
-   */
-  
-
-  /**
-   * Agregar un producto a Supabase y actualizar la lista en el BehaviorSubject
-   */
+  getProducts(): Product[] {
+    return this.productsSubject.value;
+  }
+ 
   addProduct(newProduct: Product) {
     const currentProducts = this.productsSubject.value;
     const updatedProducts = [...currentProducts, newProduct];

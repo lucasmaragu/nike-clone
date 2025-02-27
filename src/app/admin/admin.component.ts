@@ -1,10 +1,14 @@
 import { Component, ViewChild, AfterViewInit, AfterViewChecked } from "@angular/core";
-import { FormBuilder, FormGroup, Validators, FormControl, ReactiveFormsModule } from "@angular/forms";
+import { FormBuilder, FormGroup, Validators, FormControl, ReactiveFormsModule, AbstractControl, ValidationErrors  } from "@angular/forms";
 import { createClient } from "@supabase/supabase-js";
 import { CommonModule } from '@angular/common';
 import { SuccessModalComponent } from "../components/success-modal/success-modal.component";
 import { ProductService } from "../services/product/product.service";
 import { Product } from "../models/product";
+import { of } from 'rxjs'; 
+import { map, catchError, debounceTime, switchMap } from "rxjs/operators";
+import { Observable } from "rxjs";
+
 
 
 @Component({
@@ -32,12 +36,37 @@ export class AdminComponent  {
 
   AdminForm = new FormGroup({
     ReferenceNumber: new FormControl("", [Validators.required, Validators.minLength(3)]),
-    Name: new FormControl("", [Validators.required, Validators.minLength(3)]),
-    Description: new FormControl("", [Validators.required, Validators.minLength(10)]),
-    Price: new FormControl("", [Validators.required, Validators.min(0)]),
+    Name: new FormControl("", [
+      Validators.required,
+      Validators.minLength(3),
+      Validators.maxLength(50),
+    ], [this.nameValidator.bind(this)]),
+    Description: new FormControl("", [
+      Validators.required,
+      Validators.minLength(10),
+      Validators.maxLength(200)
+    ]),
+    Price: new FormControl("", [
+      Validators.required,
+      Validators.min(0),
+      Validators.max(10000) // Asumiendo un precio máximo de 10,000
+    ]),
     Type: new FormControl("", [Validators.required]),
     OnSale: new FormControl(false),
   });
+
+  nameValidator(control: AbstractControl): Observable<ValidationErrors | null> {
+    return of(control.value).pipe(
+      debounceTime(300), // Opcional: esperar 300ms antes de realizar la validación
+      switchMap(async (name: string) => {
+        const products = await this.productService.getProducts(); // Llamar al servicio para obtener productos
+        const existingProduct = products.find((p) => p.name === name);
+        return existingProduct ? { nameTaken: true } : null;
+      }),
+      catchError(() => of(null)) // Maneja cualquier error de manera segura
+    );
+  }
+
 
   async onSubmit() {
     this.formSubmitted = true;
@@ -78,6 +107,7 @@ export class AdminComponent  {
 
     } else {
       console.log("Error en el formulario");
+      console.log(this.AdminForm.value);  
       this.markFormGroupTouched(this.AdminForm);
     }
   }

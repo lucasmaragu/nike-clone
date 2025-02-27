@@ -18,16 +18,17 @@
       <p *ngIf="AdminForm.get('Name')?.hasError('required')">Este campo es obligatorio.</p>
       <p *ngIf="AdminForm.get('Name')?.hasError('minlength')">El nombre debe tener al menos 3 caracteres.</p>
       <p *ngIf="AdminForm.get('Name')?.hasError('maxlength')">El nombre no puede tener más de 50 caracteres.</p>
+      <p *ngIf="AdminForm.get('Name')?.hasError('nameTaken')">El nombre del producto ya está en uso.</p>
     </div>
   </div>
 
-  <!-- Campo de precio -->
   <div class="mb-4">
-    <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Price</label>
+    <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Precio</label>
     <input type="number" id="price" formControlName="Price" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black">
     <div *ngIf="shouldShowError('Price')" class="text-red-500 text-sm">
       <p *ngIf="AdminForm.get('Price')?.hasError('required')">Este campo es obligatorio.</p>
       <p *ngIf="AdminForm.get('Price')?.hasError('min')">El precio no puede ser negativo.</p>
+      <p *ngIf="AdminForm.get('Price')?.hasError('max')">El precio no puede ser mayor a 10,000.</p>
     </div>
   </div>
 
@@ -40,6 +41,10 @@
       <p *ngIf="AdminForm.get('Description')?.hasError('minlength')">La descripción debe tener al menos 10 caracteres.</p>
       <p *ngIf="AdminForm.get('Description')?.hasError('maxlength')">La descripción no puede tener más de 200 caracteres.</p>
     </div>
+  </div>
+  <div>
+    <label for="onSale" class="block text-sm font-medium text-gray-700 mb-1">En oferta</label>
+    <input type="checkbox" id="onSale" formControlName="OnSale" class="w-4 h-4 text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black">
   </div>
 
   <!-- Campo de tipo -->
