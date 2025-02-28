@@ -31,6 +31,7 @@ export class AdminComponent  {
   Price: number = 0;
   formSubmitted = false;
   showModal = false;
+  modalMessage: string = "";  
   productTypes = ["Footwear", "Apparel", "Equipment", "Accessories"];
   isEditMode = false;
   currentProductId: string | null = null;
@@ -124,8 +125,10 @@ export class AdminComponent  {
 
       if (this.isEditMode && this.AdminForm.value.ReferenceNumber) {
         await this.productService.updateProduct(this.AdminForm.value.ReferenceNumber, formData);
+        this.modalMessage = 'Producto actualizado con éxito';
       } else {
         await this.productService.addProduct(formData);
+        this.modalMessage = 'Producto agregado con éxito';
       }
 
       this.showModal = true;
@@ -134,6 +137,7 @@ export class AdminComponent  {
       this.imageUrl = null;
       this.selectedFile = null;
       this.isEditMode = false;
+      
 
       Object.values(this.AdminForm.controls).forEach((control) => {
         control.markAsPristine();

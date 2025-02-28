@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { Product } from '../../models/product';
 
 const MOCK_PRODUCTS: Product[] = [
@@ -36,10 +36,16 @@ const MOCK_PRODUCTS: Product[] = [
 })
 export class ProductService {
   private productsSignal = signal(MOCK_PRODUCTS);
+  private searchTermSignal = signal<string>('');
+  
+  filteredProductsSignal = signal<Product[]>(MOCK_PRODUCTS); 
+
 
   getProducts(): Product[] {
     return this.productsSignal(); // Llamamos a la Signal para obtener los productos
   }
+
+ 
 
   addProduct(product: Product) {
     // Utilizamos update() para agregar un nuevo producto a la Signal
@@ -60,5 +66,21 @@ export class ProductService {
     // Utilizamos getProducts() para obtener los productos y buscar por reference_number
     const products = this.getProducts();
     return products.find((p) => p.reference_number === referenceNumber) || null;
+  }
+
+
+  getFilteredProducts() {
+    return computed(() => {
+      const searchTerm = this.searchTermSignal();
+      if (searchTerm === '') return []; // Si el searchTerm es vacío, devuelve un arreglo vacío
+      return this.productsSignal().filter((product) =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    });
+  }
+  
+
+  setSearchTerm(searchTerm: string): void {
+    this.searchTermSignal.update(() => searchTerm);  // Usamos update() para cambiar el valor de la Signal
   }
 }

@@ -13,11 +13,12 @@ export class ProductListComponent implements OnInit {
   products: Product[] = [];
   loading = false;
   error: string | null = null;
+  
 
   constructor(private productService: ProductService) {}
 
   ngOnInit() {
-    // With Signals, we just need to get the current value
+ 
     this.loading = true;
     try {
       this.products = this.productService.getProducts();
