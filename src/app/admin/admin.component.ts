@@ -1,14 +1,13 @@
-import { Component, ViewChild, AfterViewInit, AfterViewChecked } from "@angular/core";
-import { FormBuilder, FormGroup, Validators, FormControl, ReactiveFormsModule, AbstractControl, ValidationErrors  } from "@angular/forms";
+import { Component} from "@angular/core";
+import { FormGroup, Validators, FormControl, ReactiveFormsModule, AbstractControl, ValidationErrors  } from "@angular/forms";
 import { createClient } from "@supabase/supabase-js";
 import { CommonModule } from '@angular/common';
 import { SuccessModalComponent } from "../components/success-modal/success-modal.component";
 import { ProductService } from "../services/product/product.service";
 import { Product } from "../models/product";
 import { of } from 'rxjs'; 
-import { map, catchError, debounceTime, switchMap } from "rxjs/operators";
+import { catchError, debounceTime, switchMap } from "rxjs/operators";
 import { Observable } from "rxjs";
-
 
 
 @Component({
@@ -27,12 +26,14 @@ export class AdminComponent  {
   );
 
   newProduct: Product = { reference_number: "", name: "", price: 0, type: "", description: "", image_url: "", on_sale: false };
-
-  imageUrl: string | null = null;
+  imageUrl: string | null | undefined = null;
   selectedFile!: File | null;
+  Price: number = 0;
   formSubmitted = false;
   showModal = false;
   productTypes = ["Footwear", "Apparel", "Equipment", "Accessories"];
+  isEditMode = false;
+  currentProductId: string | null = null;
 
   AdminForm = new FormGroup({
     ReferenceNumber: new FormControl("", [Validators.required, Validators.minLength(3)]),
@@ -46,7 +47,7 @@ export class AdminComponent  {
       Validators.minLength(10),
       Validators.maxLength(200)
     ]),
-    Price: new FormControl("", [
+    Price: new FormControl(0, [
       Validators.required,
       Validators.min(0),
       Validators.max(10000) // Asumiendo un precio máximo de 10,000
@@ -55,18 +56,53 @@ export class AdminComponent  {
     OnSale: new FormControl(false),
   });
 
+  async onReferenceNumberChange(event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    const value = inputElement.value.trim(); // Eliminamos espacios extra
+    
+    try {
+      const products = await this.productService.getProducts(); // Obtener productos
+      const matchedProduct = products.find(product => product.reference_number === value); // Buscar coincidencia
+    
+      if (matchedProduct) {
+        this.isEditMode = true;
+        this.AdminForm.patchValue({
+          ReferenceNumber: matchedProduct.reference_number,
+          Name: matchedProduct.name,
+          Price: matchedProduct.price,
+          Type: matchedProduct.type,
+          Description: matchedProduct.description,
+          OnSale: matchedProduct.on_sale,
+        });
+        this.imageUrl = matchedProduct.image_url;
+      } else {
+        console.log("No se encontró ningún producto con ese número de referencia.");
+      }
+    } catch (error) {
+      console.error("Error obteniendo productos:", error);
+    }
+  }
+  
   nameValidator(control: AbstractControl): Observable<ValidationErrors | null> {
+    // Solo validamos el nombre si no estamos en modo edición
+    if (this.isEditMode) {
+      return of(null); // Sin validación si está en modo edición
+    }
+    
     return of(control.value).pipe(
-      debounceTime(300), // Opcional: esperar 300ms antes de realizar la validación
+      debounceTime(300),
       switchMap(async (name: string) => {
-        const products = await this.productService.getProducts(); // Llamar al servicio para obtener productos
-        const existingProduct = products.find((p) => p.name === name);
-        return existingProduct ? { nameTaken: true } : null;
+        if (!name) return null; // Skip validation if name is empty
+        
+        const products = await this.productService.getProducts();
+        
+        const nameExists = products.some(p => p.name === name);
+        
+        return nameExists ? { nameTaken: true } : null;
       }),
-      catchError(() => of(null)) // Maneja cualquier error de manera segura
+      catchError(() => of(null)) // Si ocurre algún error, no afecta a la validación
     );
   }
-
 
   async onSubmit() {
     this.formSubmitted = true;
@@ -77,42 +113,38 @@ export class AdminComponent  {
       }
 
       const formData = {
-        reference_number: this.AdminForm.value.ReferenceNumber || "",
-        name: this.AdminForm.value.Name || "",
-        price: this.AdminForm.value.Price ? parseFloat(this.AdminForm.value.Price) : 0,
-        type: this.AdminForm.value.Type || "",
-        description: this.AdminForm.value.Description || "",
-        image_url: this.imageUrl || "",
+        reference_number: this.AdminForm.value.ReferenceNumber ?? "",
+        name: this.AdminForm.value.Name ?? "",
+        price: this.AdminForm.value.Price ?? 0,
+        type: this.AdminForm.value.Type ?? "",
+        description: this.AdminForm.value.Description ?? "",
+        image_url: this.imageUrl ?? "null",
         on_sale: this.AdminForm.value.OnSale ?? false,
       };
-      await this.productService.addProduct(formData);
+
+      if (this.isEditMode && this.AdminForm.value.ReferenceNumber) {
+        await this.productService.updateProduct(this.AdminForm.value.ReferenceNumber, formData);
+      } else {
+        await this.productService.addProduct(formData);
+      }
 
       this.showModal = true;
 
-   
-      console.log("Formulario válido:", formData);
-
-      // Resetear el formulario
       this.AdminForm.reset();
       this.imageUrl = null;
       this.selectedFile = null;
+      this.isEditMode = false;
 
-      // Después de resetear, asegúrate de marcar los controles como "untouched" y "pristine"
       Object.values(this.AdminForm.controls).forEach((control) => {
         control.markAsPristine();
         control.markAsUntouched();
       });
       this.formSubmitted = false;
-
-
     } else {
       console.log("Error en el formulario");
-      console.log(this.AdminForm.value);  
       this.markFormGroupTouched(this.AdminForm);
     }
   }
-
-
 
   markFormGroupTouched(formGroup: FormGroup) {
     Object.values(formGroup.controls).forEach((control) => {
@@ -130,17 +162,14 @@ export class AdminComponent  {
 
   async onImageChange(event: any) {
     const file: File = event.target.files[0];
-
     if (!file) return;
 
-    // Validar que el archivo sea una imagen
     const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
     if (!allowedTypes.includes(file.type)) {
       alert("Formato de imagen no válido. Solo se permiten JPG y PNG.");
       return;
     }
 
-    // Mostrar vista previa de la imagen
     const reader = new FileReader();
     reader.onload = (e: any) => {
       this.imageUrl = e.target.result;
@@ -164,7 +193,6 @@ export class AdminComponent  {
 
       if (error) throw error;
 
-      // Guardar la URL pública de la imagen
       this.imageUrl = `https://gbgjfcnjjmkocjzjaclk.supabase.co/storage/v1/object/public/products/${data.path}`;
       console.log("Imagen subida con éxito:", this.imageUrl);
     } catch (error) {

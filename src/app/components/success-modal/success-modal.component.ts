@@ -9,6 +9,7 @@ import { CommonModule } from "@angular/common"
 })
 export class SuccessModalComponent {
   @Input() show = false
+  @Input() message: string = ""
   @Output() close = new EventEmitter<void>()
 
   closeModal(): void {

@@ -11,28 +11,22 @@ import { ProductService } from "../services/product/product.service";
 })
 export class ProductListComponent implements OnInit {
   products: Product[] = [];
-  loading = true;
+  loading = false;
   error: string | null = null;
 
   constructor(private productService: ProductService) {}
 
   ngOnInit() {
-    this.productService.products$.subscribe({
-      next: (products) => {
-        console.log("📦 Productos recibidos en ProductList:", products);
-        this.products = products;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error("❌ Error al cargar productos:", error);
-        this.error = "Error al cargar productos";
-        this.loading = false;
-      },
-      complete: () => {
-        console.log("✅ Suscripción completada");
-      }
-    });
+    // With Signals, we just need to get the current value
+    this.loading = true;
+    try {
+      this.products = this.productService.getProducts();
+      console.log("📦 Productos cargados en ProductList:", this.products);
+    } catch (error) {
+      console.error("❌ Error al cargar productos:", error);
+      this.error = "Error al cargar productos";
+    } finally {
+      this.loading = false;
+    }
   }
-  
-  
 }
