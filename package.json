@@ -2,13 +2,16 @@
   "name": "nike",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "serve:ssr:Nike": "node dist/nike/server/server.mjs"
-  },
+  "ng": "ng",
+  "start": "ng serve",
+  "build": "ng build",
+  "watch": "ng build --watch --configuration development",
+  "test": "ng test",
+  "serve:ssr:Nike": "node dist/nike/server/server.mjs",
+  "start:backend": "node backend/server.js", 
+  "start:dev": "concurrently \"ng serve\" \"npm run start:backend\""  
+},
+
   "private": true,
   "dependencies": {
     "@angular/animations": "^19.1.0",
@@ -23,6 +26,7 @@
     "@angular/ssr": "^19.1.4",
     "@supabase/supabase-js": "^2.49.1",
     "@tailwindcss/postcss": "^4.0.7",
+    "concurrently": "^9.1.2",
     "dotenv": "^16.4.7",
     "express": "^4.18.2",
     "postcss": "^8.5.3",

@@ -1,0 +1,26 @@
+<div class="max-w-xl mx-auto  bg-white">
+    
+    <form class="max-w-2xl mx-auto p-6 bg-white" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <h1 class="text-3xl font-bold mb-6 text-gray-900">Inicio de sesión</h1>
+        <div class="mb-4">
+            <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Nombre de usuario</label>
+            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" id="username" formControlName="username">
+               
+        </div>  
+        <div class="mb-4">
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+            <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" id="username" id="password" formControlName="password">
+        </div>
+        <div class="flex justify-end">
+        <p>¿No tienes cuenta? <a href="javascript:void(0)" class="hover:underline" (click)="goToRegister()"><strong>Regístrate aquí</strong></a></p>
+        </div>
+        <div *ngIf="loginError" class="text-red-600 text-sm mt-2">
+            {{ loginError }}
+        </div>
+
+        <button type="submit" class="w-full bg-black text-white py-3 px-6 rounded-full font-bold text-lg hover:bg-gray-900 cursor-pointer transition duration-300 mt-6">Iniciar sesión</button>
+
+       
+
+    </form>
+</div>

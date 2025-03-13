@@ -1,0 +1,25 @@
+<div class="max-w-xl mx-auto  bg-white">
+    
+    <form class="max-w-2xl mx-auto p-6 bg-white" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <h1 class="text-3xl font-bold mb-6 text-gray-900">Regístrate</h1>
+        <div class="mb-4">
+            <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Nombre de usuario</label>
+            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" id="username" formControlName="username">
+               
+        </div>  
+        <div class="mb-4">
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+            <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"  id="password" formControlName="password">
+        </div>
+        <div class="">
+            <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña</label>
+            <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" id="confirmPassword" formControlName="confirmPassword">
+        </div>
+        
+        <button type="submit" class="w-full bg-black text-white py-3 px-6 rounded-full font-bold text-lg hover:bg-gray-900 cursor-pointer transition duration-300 mt-6">Registrar</button>
+
+        <div *ngIf="registerError" class="text-red-600 text-sm mt-2">
+            {{ registerError }}
+        </div>
+    </form>
+</div>
