@@ -15,6 +15,7 @@ async function createTables() {
     .addColumn('id', 'serial', (col) => col.primaryKey())
     .addColumn('email', 'varchar')
     .addColumn('password', 'varchar')
+    .addColumn('role', 'varchar')
     .execute();
 
   // Crear tabla de carrito de compras

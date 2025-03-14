@@ -14,38 +14,41 @@ const JWT_SECRET = 'secret';
 app.use(express.json());
 
 app.post('/api/register', [
-  body('username').isString().notEmpty(),
+  body('email').isString().notEmpty(),
   body('password').isString().isLength({ min: 6 }),
-], async (req: Request, res: Response): Promise<void> => {  // Agregamos Promise<void> como tipo de retorno
+  body('role').isString().notEmpty(), // Validar que rol sea un string y no esté vacío
+], async (req: Request, res: Response): Promise<void> => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     res.status(400).json({ errors: errors.array() });
-    return;  // Detener la ejecución después de enviar la respuesta
+    return;
   }
 
-  const { username, password } = req.body;
+  const { email, password, role } = req.body; // Asegurarse de recibir rol
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
     const user = await db
       .insertInto('users')
-      .values({ username, password: hashedPassword })
-      .returning(['id', 'username'])
+      .values({ email, password: hashedPassword, role }) // Incluir rol en la inserción
+      .returning(['id', 'email', 'role']) // Devolver el rol en la respuesta
       .executeTakeFirst();
 
     res.status(201).json(user);
   } catch (error) {
+    console.error('Error en el registro:', error);
     res.status(500).json({ error: 'Error al registrar el usuario' });
   }
 });
 
-app.post('/api/login', [body('username').isString().notEmpty(), body('password').isString().notEmpty()], async (req: Request, res: Response): Promise<void> => {
-  const { username, password } = req.body;
+
+app.post('/api/login', [body('email').isString().notEmpty(), body('password').isString().notEmpty()], async (req: Request, res: Response): Promise<void> => {
+  const { email, password } = req.body;
 
   const user = await db
     .selectFrom('users')
-    .select(['id', 'username', 'password'])
-    .where('username', '=', username)
+    .select(['id', 'email', 'password', 'role'])
+    .where('email', '=', email)
     .executeTakeFirst();
 
   if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -53,11 +56,11 @@ app.post('/api/login', [body('username').isString().notEmpty(), body('password')
     return;  // Detener la ejecución después de enviar la respuesta
   }
 
-  const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, {
+  const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, {
     expiresIn: '1h',
   });
 
-  res.json({ token }); // Enviar la respuesta aquí, no retornar res
+  res.json({ token, role: user.role }); // Enviar la respuesta aquí, no retornar res
 });
 
 // Iniciar el servidor

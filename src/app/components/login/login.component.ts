@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent {
   loginForm = new FormGroup({
-    username: new FormControl<string>('', [Validators.required]),
+    email: new FormControl<string>('', [Validators.required]),
     password: new FormControl<string>('', [Validators.required])
   });
 
@@ -26,7 +26,7 @@ export class LoginComponent {
 
       if (status) {
         if (status.error) {
-          this.loginError = 'Usuario o contraseña incorrectos';
+          this.loginError = 'Email o contraseña incorrectos';
         } else {
           console.log('Login correcto:', status);
           this.router.navigate(['/']); // Redirige si el login es exitoso
@@ -36,15 +36,15 @@ export class LoginComponent {
   }
 
   onSubmit() {
-    const { username, password } = this.loginForm.value;
+    const { email, password } = this.loginForm.value;
 
-    if (!username || !password) {
+    if (!email || !password) {
       this.loginError = 'Todos los campos son obligatorios';
       return;
     }
 
     this.loginError = null; // Limpiar mensaje de error
-    this.authService.login(username, password);
+    this.authService.login(email, password);
   }
 
   goToRegister() {
