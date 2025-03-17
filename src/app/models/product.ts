@@ -6,4 +6,5 @@ export interface Product {
   type: string;
   image_url?: string;
   on_sale: boolean;
+  stock: number;
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, effect } from '@angular/core';
 import { ProductService } from '../../services/product/product.service';
 import { CommonModule } from '@angular/common';
 import { Product } from '../../models/product';
@@ -12,17 +12,24 @@ import { AuthService } from '../../services/auth/auth.service';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent{
+  role = signal<string | null>(null); 
   filteredProducts: Product[] = []; 
   username: string = ''; 
 
-  constructor(private productService: ProductService, private authService: AuthService) {}
 
-  ngOnInit(): void {
-    // Imprime el username cuando el componente se inicializa
-    const username = this.authService.getUsername();
-    console.log('Username en ngOnInit:', username); // Depuración
-    this.username = username || '';  // Si no hay usuario, el username será ''
+
+  constructor(private productService: ProductService, private authService: AuthService) {
+    effect(() => {
+      this.role.set(this.authService.getRole()); 
+    }
+    );
   }
+
+
+  logout(): void {
+    this.authService.logout();
+  }  
+
 
   // Este método se ejecuta cuando el usuario escribe en el input
   inputSearch(event: any): void {

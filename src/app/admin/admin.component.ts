@@ -25,7 +25,7 @@ export class AdminComponent  {
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdiZ2pmY25qam1rb2NqemphY2xrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA1OTU2MDUsImV4cCI6MjA1NjE3MTYwNX0.1N1qA6a57xUeq2Hzd1NC_XYZeltugLUzK5mU-DcxiT8"
   );
 
-  newProduct: Product = { reference_number: "", name: "", price: 0, type: "", description: "", image_url: "", on_sale: false };
+  newProduct: Product = { reference_number: "", name: "", price: 0, type: "", description: "", image_url: "", on_sale: false, stock: 0 };
   imageUrl: string | null | undefined = null;
   selectedFile!: File | null;
   Price: number = 0;
@@ -55,6 +55,7 @@ export class AdminComponent  {
     ]),
     Type: new FormControl("", [Validators.required]),
     OnSale: new FormControl(false),
+    Stock: new FormControl(0, [Validators.required, Validators.min(0)]),
   });
 
   async onReferenceNumberChange(event: Event) {
@@ -73,6 +74,7 @@ export class AdminComponent  {
           Price: matchedProduct.price,
           Type: matchedProduct.type,
           Description: matchedProduct.description,
+          Stock: matchedProduct.stock,
           OnSale: matchedProduct.on_sale,
         });
         this.imageUrl = matchedProduct.image_url;
@@ -121,13 +123,14 @@ export class AdminComponent  {
         description: this.AdminForm.value.Description ?? "",
         image_url: this.imageUrl ?? "null",
         on_sale: this.AdminForm.value.OnSale ?? false,
+        stock: this.AdminForm.value.Stock ?? 0,
       };
 
       if (this.isEditMode && this.AdminForm.value.ReferenceNumber) {
         await this.productService.updateProduct(this.AdminForm.value.ReferenceNumber, formData);
         this.modalMessage = 'Producto actualizado con éxito';
       } else {
-        await this.productService.addProduct(formData);
+        await this.productService.createProduct(formData);
         this.modalMessage = 'Producto agregado con éxito';
       }
 
@@ -203,4 +206,15 @@ export class AdminComponent  {
       console.error("Error al subir la imagen:", error);
     }
   }
+
+  deleteProduct() {
+    const referenceNumber = this.AdminForm.value.ReferenceNumber;
+  
+    if (typeof referenceNumber === 'string' && referenceNumber.trim() !== '') {
+      this.productService.deleteProduct(referenceNumber);
+    } else {
+      console.error('ReferenceNumber no es válido');
+    }
+  }
+  
 }

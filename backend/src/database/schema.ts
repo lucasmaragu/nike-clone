@@ -1,13 +1,17 @@
 import db from './index';
-import { sql } from 'kysely'; // Asegúrate de importar `sql`
+import { sql } from 'kysely';
 
 async function createTables() {
-  // Crear tabla de productos
+  // Crear tabla de productos con los campos actualizados
   await db.schema.createTable('products')
-    .addColumn('id', 'serial', (col) => col.primaryKey())
+    .addColumn('reference_number', 'serial', (col) => col.primaryKey()) // Cambia 'id' por 'reference_number'
     .addColumn('name', 'varchar')
-    .addColumn('price', 'numeric')
     .addColumn('description', 'varchar')
+    .addColumn('price', 'numeric')
+    .addColumn('type', 'varchar') // Nuevo campo
+    .addColumn('image_url', 'varchar') // Nuevo campo
+    .addColumn('stock', 'integer') // Cambia 'quantity' por 'stock'
+    .addColumn('on_sale', 'boolean', (col) => col.defaultTo(false)) // Nuevo campo con valor por defecto
     .execute();
 
   // Crear tabla de usuarios
@@ -24,9 +28,9 @@ async function createTables() {
     .addColumn('user_id', 'integer')
     .addColumn('product_id', 'integer')
     .addColumn('quantity', 'integer')
-    .addColumn('created_at', 'timestamp', (col) => col.defaultTo(sql`NOW()`))  // Usamos sql`NOW()`
+    .addColumn('created_at', 'timestamp', (col) => col.defaultTo(sql`NOW()`))
     .addForeignKeyConstraint('shopping_cart_user_fk', ['user_id'], 'users', ['id'])
-    .addForeignKeyConstraint('shopping_cart_product_fk', ['product_id'], 'products', ['id'])
+    .addForeignKeyConstraint('shopping_cart_product_fk', ['product_id'], 'products', ['reference_number']) // Ajuste a la nueva clave primaria
     .execute();
 
   // Crear tabla de compras
@@ -34,7 +38,7 @@ async function createTables() {
     .addColumn('id', 'serial', (col) => col.primaryKey())
     .addColumn('user_id', 'integer')
     .addColumn('total_price', 'numeric')
-    .addColumn('created_at', 'timestamp', (col) => col.defaultTo(sql`NOW()`))  // También para la tabla `shopping`
+    .addColumn('created_at', 'timestamp', (col) => col.defaultTo(sql`NOW()`))
     .addForeignKeyConstraint('shopping_user_fk', ['user_id'], 'users', ['id'])
     .execute();
 }

@@ -1,6 +1,13 @@
 <form [formGroup]="AdminForm" (ngSubmit)="onSubmit()" class="max-w-2xl mx-auto p-6 bg-white">
-  <h2 class="text-3xl font-bold mb-6 text-gray-900">Añadir nuevo producto</h2>
-
+  <div class="flex justify-between items-center">
+  
+  <div>  <h2 class="text-3xl font-bold  text-gray-900">Añadir nuevo producto</h2></div>
+  <button class="cursor-pointer" (click)="deleteProduct()" >
+    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="100" viewBox="0,0,256,256">
+    <g fill="#ff0000" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(10.66667,10.66667)"><path d="M10,2l-1,1h-4c-0.6,0 -1,0.4 -1,1c0,0.6 0.4,1 1,1h2h10h2c0.6,0 1,-0.4 1,-1c0,-0.6 -0.4,-1 -1,-1h-4l-1,-1zM5,7v13c0,1.1 0.9,2 2,2h10c1.1,0 2,-0.9 2,-2v-13zM9,9c0.6,0 1,0.4 1,1v9c0,0.6 -0.4,1 -1,1c-0.6,0 -1,-0.4 -1,-1v-9c0,-0.6 0.4,-1 1,-1zM15,9c0.6,0 1,0.4 1,1v9c0,0.6 -0.4,1 -1,1c-0.6,0 -1,-0.4 -1,-1v-9c0,-0.6 0.4,-1 1,-1z"></path></g></g>
+    </svg>
+  </button>
+  </div>
   <!-- Campo de referencia -->
   <div class="mb-4">
     <label for="reference" class="block text-sm font-medium text-gray-700 mb-1">Numero de referencia</label>
@@ -46,10 +53,16 @@
       <p *ngIf="AdminForm.get('Description')?.hasError('maxlength')">La descripción no puede tener más de 200 caracteres.</p>
     </div>
   </div>
+  <div class="flex justify-between">
   <div>
     <label for="onSale" class="block text-sm font-medium text-gray-700 mb-1">En oferta</label>
-    <input type="checkbox" id="onSale" formControlName="OnSale" class="w-4 h-4 text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black">
+    <input type="checkbox" id="onSale" formControlName="OnSale" class="w-5 h-5 text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black">
   </div>
+  <div>
+    <label for="Stock" class="block text-sm font-medium text-gray-700 mb-1">Stock</label>
+    <input type="number" id="Stock" formControlName="Stock" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black">
+  </div>
+</div>
 
   <!-- Campo de tipo -->
   <div class="mb-4">

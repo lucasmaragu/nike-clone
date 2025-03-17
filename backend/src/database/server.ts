@@ -10,7 +10,7 @@ app.use(cors());
 const port = 3000;
 const JWT_SECRET = 'secret';
 
-// Middleware para permitir peticiones JSON
+
 app.use(express.json());
 
 app.post('/api/register', [
@@ -62,6 +62,92 @@ app.post('/api/login', [body('email').isString().notEmpty(), body('password').is
 
   res.json({ token, role: user.role }); // Enviar la respuesta aquí, no retornar res
 });
+
+
+app.post('/api/products', [
+  body('reference_number').isNumeric(),
+  body('name').isString().notEmpty(),
+  body('description').isString().notEmpty(),
+  body('type').isString().notEmpty(), // Validar que el tipo sea un string y no esté vacío
+  body('stock').isNumeric(),
+  body('price').isFloat({ gt: 0 }), // Validar que el precio sea mayor a 0
+  body('on_sale').isBoolean(), // Validar que on_sale sea un booleano
+  body('image_url').isString().notEmpty(), // Validar que la URL de la imagen sea un string y no esté vacía
+], async (req: Request, res: Response): Promise<void> => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+
+  const { reference_number, name, description, price, type, stock, image_url, on_sale } = req.body; // Incluir tipo en la solicitud
+
+  try {
+    const newProduct = await db
+      .insertInto('products')
+      .values({
+        reference_number,
+        name,
+        description,
+        price,
+        type,
+        stock,
+        image_url,
+        on_sale
+      })
+      .returningAll()
+      .executeTakeFirst();
+
+    res.status(201).json({ message: 'Producto creado exitosamente', product: newProduct });
+  } catch (error) {
+    console.error('Error al insertar producto:', error);
+    res.status(500).json({ error: 'Error al crear el producto' });
+  }
+});
+app.get('/api/products', async (req: Request, res: Response): Promise<void> => {
+  try {
+    // Recupera todos los productos de la base de datos
+    const products = await db
+    .selectFrom('products')
+    .selectAll()
+    .execute(); // Suponiendo que 'products' es el nombre de tu tabla
+
+    // Responde con el estado 200 y los productos
+    res.status(200).json({ products });
+  } catch (error) {
+    // Si hay un error en la base de datos, responde con el estado 500
+    console.error('Error al obtener productos:', error);
+    res.status(500).json({ error: 'Error al obtener los productos' });
+  }
+});
+
+app.delete('/api/products/:referenceNumber', async (req: Request, res: Response): Promise<void> => {
+  const referenceNumber = Number(req.params.referenceNumber); // Convertir a número
+
+  if (isNaN(referenceNumber)) {
+    res.status(400).json({ error: 'El número de referencia debe ser un número válido' });
+    return;
+  }
+
+  try {
+    const deletedProduct = await db
+      .deleteFrom('products')
+      .where('reference_number', '=', referenceNumber) // Ahora es un número
+      .executeTakeFirst();
+
+    if (!deletedProduct) {
+      res.status(404).json({ error: 'Producto no encontrado' });
+      return;
+    }
+
+    res.status(200).json({ message: 'Producto eliminado exitosamente' });
+  } catch (error) {
+    console.error('Error al eliminar el producto:', error);
+    res.status(500).json({ error: 'Error al eliminar el producto' });
+  }
+});
+
+
 
 // Iniciar el servidor
 app.listen(port, () => {

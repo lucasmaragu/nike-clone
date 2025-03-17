@@ -17,10 +17,21 @@ export class AuthService {
 
   loginStatus = signal<any>(null);  // Para almacenar la información del login
   registerStatus = signal<any>(null);  // Para almacenar el estado del registro
+  roleSignal = signal<string | null>(null);  // Signal para el role
 
   private usernameSignal = signal<string | null>(null);  // Signal para el username
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    // Comprobar si estamos en el cliente (navegador)
+    if (typeof window !== 'undefined') {
+      const storedRole = localStorage.getItem('role');
+      const storedToken = localStorage.getItem('token');
+      if (storedRole && storedToken) {
+        this.roleSignal.set(storedRole); // Restaurar el rol desde localStorage
+        this.loginStatus.set({ email: '', token: storedToken, role: storedRole }); // Restaurar el loginStatus
+      }
+    }
+  }
 
   // Registrar un nuevo usuario
   register(email: string, password: string, role: string): void {
@@ -39,11 +50,14 @@ export class AuthService {
     this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, password }).subscribe({
       next: (response) => {
         this.loginStatus.set(response);
-        // Ahora TypeScript sabe que la respuesta tiene un username
-        this.usernameSignal.set(response.email);  // Actualizamos el username
+        this.roleSignal.set(response.role);  
+
+        localStorage.setItem('role', response.role);
+        localStorage.setItem('token', response.token);
       },
       error: (err) => {
         this.loginStatus.set(err);
+        this.roleSignal.set(null);
       }
     });
   }
@@ -53,6 +67,11 @@ export class AuthService {
     return this.usernameSignal();  // Devuelve el valor actual del signal
   }
 
+  getRole() {
+    return this.roleSignal();  // Devuelve el valor actual del signal
+  }
+
+
   // Método para verificar si el usuario está logueado
   isLoggedIn(): boolean {
     return this.usernameSignal() !== null;
@@ -60,7 +79,11 @@ export class AuthService {
 
   // Puedes agregar un método para hacer logout si lo necesitas
   logout(): void {
-    this.usernameSignal.set(null);  // Limpiar el username
-    this.loginStatus.set(null);  // Limpiar el estado de login
+    localStorage.removeItem('role'); // Eliminar el rol de localStorage
+    localStorage.removeItem('token'); // Eliminar el token de localStorage
+    this.roleSignal.set(null);
+    this.loginStatus.set(null);
   }
+
+  
 }

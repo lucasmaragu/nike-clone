@@ -17,9 +17,13 @@
                 <li>|</li>
                 <li class="font-bold cursor-pointer hover:text-gray-500">Únete a nosotros</li>
                 <li>|</li>
-                <li routerLink="login" class="font-bold cursor-pointer hover:text-gray-500">Iniciar sesión</li>
+                <div class="flex gap-x-3" *ngIf="!role()">
+                <li  routerLink="login" class="font-bold cursor-pointer hover:text-gray-500">Iniciar sesión</li>
                 <li>|</li>
-                <li routerLink="register" class="font-bold cursor-pointer hover:text-gray-500">Regístrate</li>
+                <li  routerLink="register" class="font-bold cursor-pointer hover:text-gray-500">Regístrate</li>
+                <li>|</li>
+              </div>
+                <li *ngIf="role()" (click)="logout()"  class="font-bold cursor-pointer hover:text-gray-500">Cerrar Sesión</li>
             </ul>
         </div>
     </div>
@@ -38,9 +42,8 @@
             <ul class="flex flex-row items-center justify-center font-bold py-1 ml-30 gap-x-10">
                 <li routerLink="/" class="cursor-pointer hover:underline">Home</li>
                 <li routerLink="productos" class="cursor-pointer hover:underline">Productos</li>
-                <li *ngIf="username === 'admin'" routerLink="admin" class="cursor-pointer hover:underline">Administrador</li>
+                <li *ngIf="role() === 'admin'" routerLink="admin" class="cursor-pointer hover:underline">Administrador</li>
               </ul>
-            
         </div>
         <div class="flex">
             <div class="flex flex-col w-full relative">

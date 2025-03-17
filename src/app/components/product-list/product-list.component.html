@@ -1,45 +1,40 @@
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-8 text-gray-900">Productos</h1>
-  
+  <h1 class="text-3xl font-bold mb-8 text-gray-900">Productos</h1>
 
-    
-  
+  <!-- Si hay un error -->
+  <div *ngIf="productService.error()" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+    <p>{{ productService.error() }}</p>
+  </div>
 
-    <div *ngIf="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-      <p>{{ error }}</p>
-    </div>
-  
+  <!-- Si estamos cargando los productos -->
+  <div *ngIf="productService.loading()" class="text-center py-20">
+    <p class="text-xl text-gray-600">Cargando productos...</p>
+  </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-     
-      <div *ngFor="let product of products" class="group">
-     
-        <div class="bg-gray-50 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg">
-    
-          <div class="relative aspect-square overflow-hidden bg-gray-100">
-            
-            <img 
-              [src]="product.image_url" 
-              [alt]="product.name" 
-              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            >
-          </div>
-          
-          
-          <div class="p-4">
-            <h2 class="text-lg font-bold text-gray-900 mb-1">{{ product.name }}</h2>
-            <p class="text-sm text-gray-600 mb-1">{{ product.type }}</p>
-           
-            <p class="text-lg font-bold text-gray-900">{{ product.price | currency:'EUR':'symbol':'1.2-2' }}</p>
-          </div>
+  <!-- Si no hay productos disponibles -->
+  <div *ngIf="!productService.loading() && !productService.error() && productService.productsSignal().length === 0" class="text-center py-20">
+    <p class="text-xl text-gray-600">No hay productos disponibles</p>
+  </div>
+
+  <!-- Productos -->
+  <div *ngIf="!productService.loading() && productService.productsSignal().length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div *ngFor="let product of productService.productsSignal()" class="group">
+      <div class="bg-gray-50 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg">
+        <div class="relative aspect-square overflow-hidden bg-gray-100">
+          <img 
+            [src]="product.image_url" 
+            [alt]="product.name" 
+            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          >
+        </div>
+
+        <div class="p-4">
+          <h2 class="text-lg font-bold text-gray-900 mb-1">{{ product.name }}</h2>
+          <p class="text-sm text-gray-600 mb-1">{{ product.type }}</p>
+          <p class="text-lg font-bold text-gray-900">{{ product.price | currency:'EUR' }}</p>
         </div>
       </div>
     </div>
-  
-    <!-- Empty state -->
-    <div *ngIf="!loading && !error && products.length === 0" class="text-center py-20">
-      <p class="text-xl text-gray-600">No hay productos disponibles</p>
-    </div>
   </div>
-  
-  
+</div>
+

@@ -3,10 +3,14 @@ import { Pool } from 'pg';
 
 interface Database {
   products: {
-    id: number;
+    reference_number: number;
     name: string;
-    price: number;
     description: string;
+    price: number;
+    type: string;
+    image_url: string;
+    stock: number;
+    on_sale: boolean;
   };
   shopping_cart: {
     id: number;

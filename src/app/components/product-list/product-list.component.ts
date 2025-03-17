@@ -10,24 +10,11 @@ import { ProductService } from "../../services/product/product.service";
   templateUrl: "./product-list.component.html",
 })
 export class ProductListComponent implements OnInit {
-  products: Product[] = [];
-  loading = false;
-  error: string | null = null;
-  
-
-  constructor(private productService: ProductService) {}
+  constructor(public productService: ProductService) {}
 
   ngOnInit() {
- 
-    this.loading = true;
-    try {
-      this.products = this.productService.getProducts();
-      console.log("📦 Productos cargados en ProductList:", this.products);
-    } catch (error) {
-      console.error("❌ Error al cargar productos:", error);
-      this.error = "Error al cargar productos";
-    } finally {
-      this.loading = false;
-    }
+    // Asegurarnos de que se cargan los productos
+    this.productService.fetchProducts()
+    console.log("🔄 Solicitando productos desde el componente")
   }
 }
