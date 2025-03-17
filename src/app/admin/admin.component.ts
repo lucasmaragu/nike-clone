@@ -25,7 +25,7 @@ export class AdminComponent  {
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdiZ2pmY25qam1rb2NqemphY2xrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA1OTU2MDUsImV4cCI6MjA1NjE3MTYwNX0.1N1qA6a57xUeq2Hzd1NC_XYZeltugLUzK5mU-DcxiT8"
   );
 
-  newProduct: Product = { reference_number: "", name: "", price: 0, type: "", description: "", image_url: "", on_sale: false, stock: 0 };
+  newProduct: Product = { reference_number: 0, name: "", price: 0, type: "", description: "", image_url: "", on_sale: false, stock: 0 };
   imageUrl: string | null | undefined = null;
   selectedFile!: File | null;
   Price: number = 0;
@@ -37,7 +37,7 @@ export class AdminComponent  {
   currentProductId: string | null = null;
 
   AdminForm = new FormGroup({
-    ReferenceNumber: new FormControl("", [Validators.required, Validators.minLength(3)]),
+    ReferenceNumber: new FormControl(0, [Validators.required, Validators.minLength(3)]),
     Name: new FormControl("", [
       Validators.required,
       Validators.minLength(3),
@@ -64,8 +64,9 @@ export class AdminComponent  {
     
     try {
       const products = await this.productService.getProducts(); // Obtener productos
-      const matchedProduct = products.find(product => product.reference_number === value); // Buscar coincidencia
-    
+      const matchedProduct = products.find(product => product.reference_number === Number(value)); // Buscar coincidencia
+      console.log("ReferenceNumber of all products:", products.map(p => p.reference_number));
+      console.log("Mi input es:", value);
       if (matchedProduct) {
         this.isEditMode = true;
         this.AdminForm.patchValue({
@@ -116,7 +117,7 @@ export class AdminComponent  {
       }
 
       const formData = {
-        reference_number: this.AdminForm.value.ReferenceNumber ?? "",
+        reference_number: this.AdminForm.value.ReferenceNumber ?? 0,
         name: this.AdminForm.value.Name ?? "",
         price: this.AdminForm.value.Price ?? 0,
         type: this.AdminForm.value.Type ?? "",
@@ -210,11 +211,16 @@ export class AdminComponent  {
   deleteProduct() {
     const referenceNumber = this.AdminForm.value.ReferenceNumber;
   
-    if (typeof referenceNumber === 'string' && referenceNumber.trim() !== '') {
-      this.productService.deleteProduct(referenceNumber);
+    // Verificar que el referenceNumber es un número válido
+    const referenceNumberAsNumber = Number(referenceNumber);
+  
+    if (!isNaN(referenceNumberAsNumber)) {
+      // Llamar al servicio de eliminación pasándole el número convertido
+      this.productService.deleteProduct(referenceNumberAsNumber);
     } else {
       console.error('ReferenceNumber no es válido');
     }
   }
+  
   
 }

@@ -3,38 +3,7 @@ import { Product } from '../../models/product';
 import { HttpClient } from '@angular/common/http';
 import { HttpHeaders } from '@angular/common/http';
 
-const MOCK_PRODUCTS: Product[] = [
-  {
-    reference_number: "0001",
-    name: "Nike Air Max Dn8",
-    price: 189.99,
-    type: "Footwear",
-    description: "Las nuevas Nike Air Max Dn8 con tecnología de amortiguación avanzada.",
-    image_url: "https://static.nike.com/a/images/c_limit,w_592,f_auto/t_product_v1/59ff827c-5672-4657-9eca-0179dfe206c3/AIR+MAX+DN8.png",
-    on_sale: true,
-    stock: 100,
-  },
-  {
-    reference_number: "0002",
-    name: "Nike Air Max Plus",
-    price: 189.99,
-    type: "Footwear",
-    description: "Zapatillas Nike Air Max Plus con diseño clásico y comodidad superior.",
-    image_url: "https://static.nike.com/a/images/c_limit,w_592,f_auto/t_product_v1/b16396a9-b08a-499b-b86f-0aad51447b98/NIKE+AIR+MAX+PLUS.png",
-    on_sale: false,
-    stock: 50,
-  },
-  {
-    reference_number: "AM-PLUS-OG-001",
-    name: "Nike Air Max Plus OG",
-    price: 189.99,
-    type: "Footwear",
-    description: "La versión original de las icónicas Nike Air Max Plus.",
-    image_url: "https://static.nike.com/a/images/c_limit,w_592,f_auto/t_product_v1/abc77b0c-11b8-4156-be41-c9fd8e9553cb/NIKE+AIR+MAX+PLUS.png",
-    on_sale: true,
-    stock: 10,
-  },
-];
+
 
 interface ProductsResponse {
   products: Product[]
@@ -77,7 +46,7 @@ export class ProductService {
         this.loading.set(false)
 
         // Si hay un error, cargamos los productos de prueba
-        this.productsSignal.set(MOCK_PRODUCTS)
+      
       },
     })
   }
@@ -133,7 +102,7 @@ export class ProductService {
   }
 
   // Actualizar un producto existente
-  updateProduct(referenceNumber: string, updatedData: Partial<Product>): Promise<void> {
+  updateProduct(referenceNumber: number, updatedData: Partial<Product>): Promise<void> {
     this.loading.set(true)
     this.error.set(null)
 
@@ -166,7 +135,7 @@ export class ProductService {
   }
 
   // Eliminar un producto
-  deleteProduct(referenceNumber: string): void {
+  deleteProduct(referenceNumber: number): void {
     this.loading.set(true)
     this.error.set(null)
 
@@ -189,7 +158,7 @@ export class ProductService {
   }
 
   // Obtener un producto por número de referencia
-  async getProductByReferenceNumber(referenceNumber: string): Promise<Product | null> {
+  async getProductByReferenceNumber(referenceNumber: number): Promise<Product | null> {
     this.loading.set(true)
     this.error.set(null)
 

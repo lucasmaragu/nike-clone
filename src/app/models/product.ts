@@ -1,5 +1,5 @@
 export interface Product {
-  reference_number: string;
+  reference_number: number;
   name: string;
   description: string;
   price: number;
