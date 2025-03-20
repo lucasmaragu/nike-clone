@@ -17,23 +17,113 @@
   </div>
 
   <!-- Productos -->
-  <div *ngIf="!productService.loading() && productService.productsSignal().length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    <div *ngFor="let product of productService.productsSignal()" class="group">
-      <div class="bg-gray-50 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg">
-        <div class="relative aspect-square overflow-hidden bg-gray-100">
+  <div *ngIf="!productService.loading() && productService.productsSignal().length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div *ngFor="let product of productService.productsSignal()" class="group relative">
+      <!-- Card Container -->
+      <div class="bg-white rounded-lg overflow-hidden transition-all duration-300 hover:shadow-md">
+        <!-- Image Container -->
+        <div class="relative aspect-square overflow-hidden bg-[#F5F5F5]">
+          <!-- Sale Badge -->
+          <div *ngIf="product.on_sale" class="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold px-3 py-1 z-10">
+            OFERTA
+          </div>
+          
+          <!-- Stock Badge -->
+          <div *ngIf="product.stock < 5 && product.stock > 0" class="absolute top-0 left-0 bg-black text-white text-xs font-bold px-3 py-1 z-10">
+            ÚLTIMAS UNIDADES
+          </div>
+          
+          <!-- Out of Stock Overlay -->
+          <div *ngIf="product.stock === 0" class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
+            <span class="text-white font-bold text-lg">AGOTADO</span>
+          </div>
+          
+          <!-- Product Image -->
           <img 
             [src]="product.image_url" 
             [alt]="product.name" 
             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           >
+          
+          <!-- Quick Add Overlay (appears on hover) -->
+          <div class="absolute bottom-0 left-0 right-0 bg-white bg-opacity-95 py-3 px-4 transform translate-y-full transition-transform duration-300 group-hover:translate-y-0">
+            <div class="flex justify-between items-center">
+              <div class="text-sm font-medium">Tallas disponibles</div>
+              <button class="text-xs underline">Guía de tallas</button>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-2">
+              <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-xs hover:border-black">
+                38
+              </button>
+              <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-xs hover:border-black">
+                39
+              </button>
+              <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-xs hover:border-black">
+                40
+              </button>
+              <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-xs hover:border-black">
+                41
+              </button>
+              <button class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-xs hover:border-black">
+                42
+              </button>
+            </div>
+          </div>
         </div>
 
+        <!-- Product Info -->
         <div class="p-4">
-          <h2 class="text-lg font-bold text-gray-900 mb-1">{{ product.name }}</h2>
-          <p class="text-sm text-gray-600 mb-1">{{ product.type }}</p>
-          <p class="text-lg font-bold text-gray-900">{{ product.price | currency:'EUR' }}</p>
+          <!-- Reference Number -->
+          <div class="flex justify-between items-center mb-1">
+            <p class="text-xs text-gray-500">Ref: {{ product.reference_number }}</p>
+            <div *ngIf="product.on_sale" class="text-red-600 text-xs font-bold">-20%</div>
+          </div>
+          
+          <!-- Product Name -->
+          <h2 class="text-base font-bold text-gray-900 mb-1 line-clamp-1">{{ product.name }}</h2>
+          
+          <!-- Product Type -->
+          <p class="text-sm text-gray-600 mb-2">{{ product.type }}</p>
+          
+          <!-- Product Description -->
+          <p class="text-xs text-gray-500 mb-3 line-clamp-2">{{ product.description }}</p>
+          
+          <!-- Price -->
+          <div class="flex items-center gap-2">
+            <p class="text-lg font-bold text-gray-900">{{ product.price | currency:'EUR' }}</p>
+            <p *ngIf="product.on_sale" class="text-sm text-gray-500 line-through">{{ product.price * 1.2 | currency:'EUR' }}</p>
+          </div>
+        </div>
+        
+        <!-- Add to Cart Button -->
+        <div class="px-4 pb-4">
+          <button 
+            [disabled]="product.stock === 0"
+            (click)="addToCart(product)"
+            [ngClass]="{'opacity-50 cursor-not-allowed': product.stock === 0}"
+            class="bg-black hover:bg-gray-900 text-white w-full cursor-pointer py-2.5 rounded-full font-medium text-sm transition-colors duration-300 flex items-center justify-center gap-2"
+          >
+            <svg *ngIf="product.stock > 0" class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8.25 8.25V6a2.25 2.25 0 012.25-2.25h3a2.25 2.25 0 110 4.5H3.75v8.25a3.75 3.75 0 003.75 3.75h9a3.75 3.75 0 003.75-3.75V8.25H17.5" stroke="currentColor" stroke-width="1.5"></path>
+            </svg>
+            {{ product.stock === 0 ? 'Agotado' : 'Añadir al carrito' }}
+          </button>
+        </div>
+        
+        <!-- Nike Swoosh Watermark (subtle branding) -->
+        <div class="absolute top-2 left-2 opacity-10">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21 8.719L7.836 14.303C6.74 14.768 5.818 15 5.075 15c-.836 0-1.445-.295-1.819-.884-.485-.76-.273-1.982.559-3.272.494-.754 1.122-1.446 1.734-2.108-.144.234-1.415 2.349-.025 3.345.275.2.666.298 1.147.298.386 0 .829-.063 1.316-.19L21 8.719z"></path>
+          </svg>
         </div>
       </div>
+      
+      <!-- Favorite Button -->
+      <button class="absolute top-3 right-3 z-20 bg-white rounded-full p-1.5 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M16.794 3.75c1.324 0 2.568.516 3.504 1.451a4.96 4.96 0 010 7.008L12 20.508l-8.299-8.299a4.96 4.96 0 010-7.007A4.923 4.923 0 017.205 3.75c1.324 0 2.568.516 3.504 1.451l.76.76.531.531.53-.531.76-.76a4.926 4.926 0 013.504-1.451"></path>
+        </svg>
+      </button>
     </div>
   </div>
 </div>

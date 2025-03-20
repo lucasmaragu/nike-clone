@@ -147,6 +147,45 @@ app.delete('/api/products/:referenceNumber', async (req: Request, res: Response)
   }
 });
 
+app.get('/api/products/:referenceNumber', async (req: Request, res: Response): Promise<void> => {
+  const referenceNumber = Number(req.params.referenceNumber); // Convertir a número
+  try {
+    const product = await db
+      .selectFrom('products')
+      .selectAll()
+      .where('reference_number', '=', referenceNumber) // Ahora es un número
+      .executeTakeFirst();
+
+    if (!product) {
+      res.status(404).json({ error: 'Producto no encontrado' });
+      return;
+    }
+
+    res.status(200).json({ product });
+  }
+  catch (error) {
+    console.error('Error al obtener el producto:', error);
+    res.status(500).json({ error: 'Error al obtener el producto' });
+  }
+});
+
+
+app.get('/api/carrito', async (req: Request, res: Response): Promise<void> => {
+  try {
+    console.log('Obteniendo carrito');
+    const cart = await db
+      .selectFrom('shopping_cart')
+      .selectAll()
+      .execute();
+    console.log(cart);
+    res.status(200).json({ cart });
+  }
+  catch (error) {
+    console.error('Error al obtener el carrito:', error);
+    res.status(500).json({ error: 'Error al obtener el carrito' });
+  }
+});
+
 
 
 // Iniciar el servidor

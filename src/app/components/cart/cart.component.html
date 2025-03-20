@@ -1,0 +1,210 @@
+<div class="bg-white min-h-screen">
+  <!-- Cart Header -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 class="text-3xl font-bold text-gray-900">Carrito</h1>
+    <p class="text-sm text-gray-500 mt-1">{{ cartItems.length }} artículos</p>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+    <!-- Loading State -->
+    <div *ngIf="cartService.loadingSignal()" class="flex justify-center items-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="cartService.errorSignal()" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+      <p>{{ cartService.errorSignal() }}</p>
+    </div>
+
+    <div *ngIf="!cartService.loadingSignal() && !cartService.errorSignal() && cartItems.length > 0" class="lg:grid lg:grid-cols-12 lg:gap-x-12">
+      <!-- Cart Items -->
+      <div class="lg:col-span-8">
+        <!-- Items List -->
+        <div class="border-t border-gray-200 divide-y divide-gray-200">
+          <div *ngFor="let item of cartItems" class="py-8 flex">
+            <!-- Product Image -->
+            <div class="flex-shrink-0 w-32 h-32 bg-[#F5F5F5] overflow-hidden rounded-md">
+              <img [src]="item.product.image_url" [alt]="item.product.name" class="w-full h-full object-center object-cover">
+            </div>
+
+            <!-- Product Details -->
+            <div class="ml-6 flex-1 flex flex-col">
+              <div class="flex justify-between">
+                <div>
+                  <!-- Reference Number -->
+                  <p class="text-xs text-gray-500 mb-1">Ref: {{ item.product.reference_number }}</p>
+                  <h3 class="text-base font-medium text-gray-900">{{ item.product.name }}</h3>
+                  
+                  
+                  
+                  <!-- Product Type -->
+                  <p class="mt-1 text-sm text-gray-500">{{ item.product.type }}</p>
+                  
+                  <!-- On Sale Badge -->
+                  <div *ngIf="item.product.on_sale" class="inline-block bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded mt-2">
+                    OFERTA
+                  </div>
+                </div>
+                
+                <!-- Price Section -->
+                <div class="text-right">
+                  <p class="text-base font-medium text-gray-900">{{ item.product.price }} €</p>
+                  <p *ngIf="item.product.on_sale" class="text-sm text-gray-500 line-through">{{ item.product.price * 1.2 }} €</p>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex-1 flex items-end justify-between mt-4">
+                <div class="flex items-center">
+                  <!-- Quantity Selector with improved styling -->
+                  <div class="flex items-center border border-gray-300 rounded-full">
+                    <button 
+                      class="p-1.5 rounded-full text-gray-600 hover:bg-gray-100 focus:outline-none"
+                      
+                    >
+                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                      </svg>
+                    </button>
+                    <span class="px-4 text-sm font-medium">{{ item.quantity }}</span>
+                    <button 
+                      class="p-1.5 rounded-full text-gray-600 hover:bg-gray-100 focus:outline-none"
+                      
+                    >
+                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <!-- Stock Indicator -->
+                  <div *ngIf="item.product.stock < 5" class="ml-3 text-xs text-red-600">
+                    Solo {{ item.product.stock }} disponibles
+                  </div>
+                </div>
+
+                <!-- Item Actions -->
+                <div class="flex space-x-4 text-sm">
+                  <button (click)="removeItem(item)" class="text-gray-500 hover:text-black font-medium flex items-center">
+                    <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="mt-16 lg:mt-0 lg:col-span-4">
+        <div class="bg-[#F5F5F5] rounded-lg px-6 py-6 sm:p-6 lg:p-8">
+          <h2 class="text-lg font-bold text-gray-900">Resumen del pedido</h2>
+
+          <div class="mt-8 space-y-4">
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-gray-600">Subtotal</p>
+              <p class="text-sm font-medium text-gray-900">{{ subtotal.toFixed(2) }} €</p>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-gray-600">Envío</p>
+              <p class="text-sm font-medium text-gray-900">
+                {{ shipping === 0 ? 'Gratis' : shipping.toFixed(2) + ' €' }}
+              </p>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-gray-600">Impuestos (21% IVA)</p>
+              <p class="text-sm font-medium text-gray-900">{{ tax.toFixed(2) }} €</p>
+            </div>
+
+            <div class="border-t border-gray-300 pt-4 flex items-center justify-between">
+              <p class="text-base font-bold text-gray-900">Total</p>
+              <p class="text-base font-bold text-gray-900">{{ total.toFixed(2) }} €</p>
+            </div>
+          </div>
+
+          <div class="mt-8">
+            <button class="w-full bg-black text-white py-3.5 px-4 rounded-full font-medium hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors duration-200">
+              Tramitar pedido
+            </button>
+          </div>
+
+          <div class="mt-4">
+            <button class="w-full bg-white text-black border border-gray-300 py-3.5 px-4 rounded-full font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200 flex items-center justify-center">
+              <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.384a.64.64 0 0 1 .632-.537h4.605c.348 0 .64.28.64.628a.64.64 0 0 1-.64.628H6.066L3.16 20.08h3.916a.64.64 0 0 1 .64.628.64.64 0 0 1-.64.628zm4.795-1.631c-1.804 0-3.318-1.513-3.318-3.317 0-1.804 1.514-3.318 3.318-3.318 1.803 0 3.317 1.514 3.317 3.318 0 1.804-1.514 3.317-3.317 3.317zm0-5.379a2.064 2.064 0 0 0-2.062 2.062 2.064 2.064 0 0 0 2.062 2.062 2.064 2.064 0 0 0 2.062-2.062 2.064 2.064 0 0 0-2.062-2.062zm6.378 5.379c-1.803 0-3.317-1.513-3.317-3.317 0-1.804 1.514-3.318 3.317-3.318 1.804 0 3.318 1.514 3.318 3.318 0 1.804-1.514 3.317-3.318 3.317zm0-5.379a2.064 2.064 0 0 0-2.062 2.062 2.064 2.064 0 0 0 2.062 2.062 2.064 2.064 0 0 0 2.063-2.062 2.064 2.064 0 0 0-2.063-2.062zm3.572-4.006H9.957L9.07 4.97h11.865a.64.64 0 0 1 .586.899l-1.167 2.678a.639.639 0 0 1-.586.38h-7.235l-.485 1.256h6.818a.64.64 0 0 1 .64.628.64.64 0 0 1-.64.628H11.32l-.484 1.256h9.096a.64.64 0 0 1 .64.628.64.64 0 0 1-.64.628h-9.73l-.484 1.256h6.818a.64.64 0 0 1 .64.628.64.64 0 0 1-.64.628h-7.453l-.484 1.256h9.096a.64.64 0 0 1 .64.628.64.64 0 0 1-.64.628"></path>
+              </svg>
+              Pagar con PayPal
+            </button>
+          </div>
+
+          <!-- Promo Code with improved styling -->
+          <div class="mt-8 border-t border-gray-300 pt-6">
+            <p class="text-sm font-medium text-gray-900 mb-3">¿Tienes un código promocional?</p>
+            <div class="flex space-x-2">
+              <input
+                type="text"
+                placeholder="Introduce tu código"
+                class="block w-full border border-gray-300 rounded-full px-4 py-2.5 text-sm focus:ring-black focus:border-black"
+              />
+              <button class="bg-gray-200 text-gray-800 py-2.5 px-5 rounded-full text-sm font-medium hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200">
+                Aplicar
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-6 text-center">
+            <p class="text-sm text-gray-500">
+              <span class="font-medium">Envío estándar:</span> 3-5 días laborables
+            </p>
+            <p class="mt-1 text-sm text-gray-500">
+              Devoluciones gratuitas durante 60 días
+            </p>
+          </div>
+        </div>
+
+        <!-- Help Section with Nike styling -->
+        <div class="mt-8 bg-white p-6 rounded-lg border border-gray-100">
+          <h3 class="text-base font-bold text-gray-900 flex items-center">
+            <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            ¿Necesitas ayuda?
+          </h3>
+          <div class="mt-4 space-y-3">
+            <a href="#" class="text-sm text-gray-600 hover:text-black flex items-center group">
+              <span class="w-1 h-1 bg-gray-400 rounded-full mr-2 group-hover:bg-black transition-colors duration-200"></span>
+              Preguntas frecuentes
+            </a>
+            <a href="#" class="text-sm text-gray-600 hover:text-black flex items-center group">
+              <span class="w-1 h-1 bg-gray-400 rounded-full mr-2 group-hover:bg-black transition-colors duration-200"></span>
+              Contactar con atención al cliente
+            </a>
+            <a href="#" class="text-sm text-gray-600 hover:text-black flex items-center group">
+              <span class="w-1 h-1 bg-gray-400 rounded-full mr-2 group-hover:bg-black transition-colors duration-200"></span>
+              Estado del pedido
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Empty Cart with Nike styling -->
+    <div *ngIf="!cartService.loadingSignal() && !cartService.errorSignal() && cartItems.length === 0" class="flex flex-col justify-center items-center h-96">
+      <svg class="w-16 h-16 text-gray-300 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.25 8.25V6a2.25 2.25 0 012.25-2.25h3a2.25 2.25 0 110 4.5H3.75v8.25a3.75 3.75 0 003.75 3.75h9a3.75 3.75 0 003.75-3.75V8.25H17.5"></path>
+      </svg>
+      <p class="text-2xl font-bold text-gray-900 mb-2">Tu carrito está vacío</p>
+      <p class="text-gray-500 mb-6">Explora nuestros productos y encuentra algo que te guste</p>
+      <a href="/productos" class="bg-black text-white py-3 px-8 rounded-full font-medium hover:bg-gray-900 transition-colors duration-200">
+        Ver productos
+      </a>
+    </div>
+  </div>
+</div>
+

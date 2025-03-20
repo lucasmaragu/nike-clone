@@ -35,8 +35,6 @@ export class ProductService {
 
     this.http.get<ProductsResponse>(`${this.apiUrl}/products`).subscribe({
       next: (response) => {
-        console.log("📦 Respuesta de la API:", response)
-        // La API devuelve { products: [...] }, así que accedemos a products
         this.productsSignal.set(response.products)
         this.loading.set(false)
       },
@@ -44,9 +42,6 @@ export class ProductService {
         console.error("❌ Error al obtener productos:", err)
         this.error.set("Error al cargar los productos")
         this.loading.set(false)
-
-        // Si hay un error, cargamos los productos de prueba
-      
       },
     })
   }
