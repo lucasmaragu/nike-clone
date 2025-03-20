@@ -88,7 +88,6 @@ export class CartService {
   addToCart(product: any) {
     this.http.post(`${this.apiUrl}/carrito/${product.reference_number}`, { product_id: product.reference_number }).subscribe({
       next: () => {
-        console.log(`Producto ${product.name} añadido al carrito`);
         this.fetchCart();
       }
     });
@@ -107,7 +106,7 @@ export class CartService {
   }
   
   removeFromCart(item: CartItem): void {
-    this.http.delete(`${this.apiUrl}/carrito/${item.id}`).subscribe({
+      this.http.delete(`${this.apiUrl}/carrito/${item.id}`).subscribe({
       next: () => {
         console.log(`Producto ${item.product.name} eliminado del carrito`);
         this.fetchCart();

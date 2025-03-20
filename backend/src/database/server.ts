@@ -191,13 +191,13 @@ app.post('/api/carrito/:referenceNumber', [
   body('user_id').isNumeric(),
  ], async (req: Request, res: Response): Promise<void> => {
   
-  const { quantity, user_id } = req.body;
+  const {  user_id } = req.body;
   const referenceNumber = Number(req.params.referenceNumber); 
   
   try {
     const productCart = await db
       .insertInto('shopping_cart')
-      .values({ product_id: referenceNumber, quantity: quantity, user_id: user_id })
+      .values({ product_id: referenceNumber, quantity: 1, user_id: user_id })
       .returningAll()
       .executeTakeFirst();
     res.status(201).json({ message: 'Producto agregado al carrito', productCart });
