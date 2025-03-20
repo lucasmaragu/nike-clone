@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 
 // Creamos una interfaz para la respuesta del login
 interface LoginResponse {
+  id: number;
   email: string;
   token: string;
   role: string; // Por ejemplo, si también recibes un token
@@ -15,6 +16,7 @@ export class AuthService {
 
   private apiUrl = 'http://localhost:3000/api';
 
+  userIdSignal = signal<number | null>(null);  // Signal para el userId
   loginStatus = signal<any>(null);  // Para almacenar la información del login
   registerStatus = signal<any>(null);  // Para almacenar el estado del registro
   roleSignal = signal<string | null>(null);  // Signal para el role
@@ -50,7 +52,9 @@ export class AuthService {
     this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, password }).subscribe({
       next: (response) => {
         this.loginStatus.set(response);
-        this.roleSignal.set(response.role);  
+        this.roleSignal.set(response.role); 
+        this.usernameSignal.set(response.email);  // Establecer el username en el signal
+        this.userIdSignal.set(response.id);  // Establecer el userId en el signal 
 
         localStorage.setItem('role', response.role);
         localStorage.setItem('token', response.token);
@@ -69,6 +73,10 @@ export class AuthService {
 
   getRole() {
     return this.roleSignal();  // Devuelve el valor actual del signal
+  }
+
+  getUserId() {
+    return this.userIdSignal();  // Devuelve el valor actual del signal 
   }
 
 

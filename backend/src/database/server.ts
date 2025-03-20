@@ -186,6 +186,45 @@ app.get('/api/carrito', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+app.post('/api/carrito/:referenceNumber', [
+  body('quantity').isNumeric(),
+  body('user_id').isNumeric(),
+ ], async (req: Request, res: Response): Promise<void> => {
+  
+  const { quantity, user_id } = req.body;
+  const referenceNumber = Number(req.params.referenceNumber); 
+  
+  try {
+    const productCart = await db
+      .insertInto('shopping_cart')
+      .values({ product_id: referenceNumber, quantity: quantity, user_id: user_id })
+      .returningAll()
+      .executeTakeFirst();
+    res.status(201).json({ message: 'Producto agregado al carrito', productCart });
+  } catch (error) {
+    console.error('Error al agregar producto al carrito:', error);
+    res.status(500).json({ error: 'Error al agregar producto al carrito' });
+  }
+
+});
+
+app.delete('/api/carrito/:referenceNumber', async (req: Request, res: Response): Promise<void> => {
+  const referenceNumber = Number(req.params.referenceNumber); 
+  try {
+    const deletedProduct = await db
+      .deleteFrom('shopping_cart')
+      .where('product_id', '=', referenceNumber)
+      .executeTakeFirst();
+    if (!deletedProduct) {
+      res.status(404).json({ error: 'Producto no encontrado en el carrito' });
+      return;
+    }
+    res.status(200).json({ message: 'Producto eliminado del carrito' });
+  } catch (error) {
+    console.error('Error al eliminar producto del carrito:', error);
+    res.status(500).json({ error: 'Error al eliminar producto del carrito' });
+  }
+} );
 
 
 // Iniciar el servidor

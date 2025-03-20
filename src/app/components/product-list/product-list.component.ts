@@ -16,7 +16,6 @@ export class ProductListComponent implements OnInit {
   ngOnInit() {
     // Asegurarnos de que se cargan los productos
     this.productService.fetchProducts()
-    console.log("🔄 Solicitando productos desde el componente")
   }
 
   addToCart(product: Product) {

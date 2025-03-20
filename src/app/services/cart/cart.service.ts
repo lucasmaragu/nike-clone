@@ -86,17 +86,17 @@ export class CartService {
   }
 
   addToCart(product: any) {
-    console.log("🛒 Agregando al carrito:", product);
-    // Implementación pendiente
+    this.http.post(`${this.apiUrl}/carrito/${product.reference_number}`, { product_id: product.reference_number }).subscribe({
+      next: () => {
+        console.log(`Producto ${product.name} añadido al carrito`);
+        this.fetchCart();
+      }
+    });
   }
   
   updateQuantity(item: CartItem, newQuantity: number): void {
     if (newQuantity < 1 || newQuantity > item.product.stock) return;
     
-    // Aquí iría la llamada a la API para actualizar la cantidad
-    console.log(`Actualizando cantidad de ${item.product.name} a ${newQuantity}`);
-    
-    // Actualización optimista de la UI mientras se procesa la petición
     const updatedCart = this.cartSignal().map(cartItem => 
       cartItem.id === item.id 
         ? { ...cartItem, quantity: newQuantity as Number } 
@@ -107,11 +107,11 @@ export class CartService {
   }
   
   removeFromCart(item: CartItem): void {
-    // Aquí iría la llamada a la API para eliminar el item
-    console.log(`Eliminando ${item.product.name} del carrito`);
-    
-    // Actualización optimista de la UI mientras se procesa la petición
-    const updatedCart = this.cartSignal().filter(cartItem => cartItem.id !== item.id);
-    this.cartSignal.set(updatedCart);
+    this.http.delete(`${this.apiUrl}/carrito/${item.id}`).subscribe({
+      next: () => {
+        console.log(`Producto ${item.product.name} eliminado del carrito`);
+        this.fetchCart();
+      }
+    });
   }
 }
