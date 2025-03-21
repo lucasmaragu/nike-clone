@@ -55,9 +55,12 @@ export class AuthService {
         this.roleSignal.set(response.role); 
         this.usernameSignal.set(response.email);  // Establecer el username en el signal
         this.userIdSignal.set(response.id);  // Establecer el userId en el signal 
-
+      
+       localStorage.setItem('username', response.email);
+   
         localStorage.setItem('role', response.role);
         localStorage.setItem('token', response.token);
+     
       },
       error: (err) => {
         this.loginStatus.set(err);
@@ -76,6 +79,7 @@ export class AuthService {
   }
 
   getUserId() {
+    console.log("userId" , this.userIdSignal());
     return this.userIdSignal();  // Devuelve el valor actual del signal 
   }
 

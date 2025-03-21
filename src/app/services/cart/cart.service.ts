@@ -1,8 +1,9 @@
-import { Injectable, signal } from "@angular/core";
+import { Injectable, signal, effect } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Cart } from "../../models/cart";
 import { Product } from "../../models/product";
 import { forkJoin } from "rxjs";
+import { AuthService } from "../auth/auth.service";
 
 interface CartResponse {
   cart: Cart[];
@@ -24,10 +25,17 @@ export class CartService {
   cartSignal = signal<CartItem[]>([]);
   loadingSignal = signal<boolean>(false);
   errorSignal = signal<string | null>(null);
+
+  userId: number | null = null;
   private apiUrl = "http://localhost:3000/api";
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private authService: AuthService) {
     this.fetchCart();
+    effect (() => {
+      const userIdSignal = this.authService.getUserId();
+      this.userId = userIdSignal;
+    }
+    );
   }
 
   fetchCart(): void {
@@ -86,7 +94,8 @@ export class CartService {
   }
 
   addToCart(product: any) {
-    this.http.post(`${this.apiUrl}/carrito/${product.reference_number}`, { product_id: product.reference_number }).subscribe({
+    console.log("user id al addtoCard" , this.userId)
+    this.http.post(`${this.apiUrl}/carrito/${product.reference_number}`, { product_id: product.reference_number, user_id: this.userId }).subscribe({
       next: () => {
         this.fetchCart();
       }
@@ -111,6 +120,18 @@ export class CartService {
         console.log(`Producto ${item.product.name} eliminado del carrito`);
         this.fetchCart();
       }
+    });
+  }
+
+  buyCart(): void {
+    this.http.post(`${this.apiUrl}/carrito/comprar`, { user_id: this.userId }).subscribe({
+      next: () => {
+        console.log("🛒 Compra realizada con éxito");
+        this.fetchCart();
+      },
+      error: (err) => {
+        console.error("❌ Error al comprar:", err);
+      },
     });
   }
 }

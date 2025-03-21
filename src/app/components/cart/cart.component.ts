@@ -47,4 +47,8 @@ export class CartComponent {
   removeItem(item: CartItem): void {
     this.cartService.removeFromCart(item);
   }
+
+  comprarPedido(): void {
+    this.cartService.buyCart();
+  }
 }

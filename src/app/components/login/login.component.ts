@@ -22,7 +22,7 @@ export class LoginComponent {
   constructor(private authService: AuthService, private router: Router) {
     effect(() => {
       const status = this.authService.loginStatus();
-      console.log('Estado de login actualizado:', status);
+      
 
       if (status) {
         if (status.error) {
@@ -45,6 +45,7 @@ export class LoginComponent {
 
     this.loginError = null; // Limpiar mensaje de error
     this.authService.login(email, password);
+  
   }
 
   goToRegister() {
