@@ -115,6 +115,7 @@ export class CartService {
   }
   
   removeFromCart(item: CartItem): void {
+    console.log("Item a eliminar:", item);
       this.http.delete(`${this.apiUrl}/carrito/${item.id}`).subscribe({
       next: () => {
         console.log(`Producto ${item.product.name} eliminado del carrito`);

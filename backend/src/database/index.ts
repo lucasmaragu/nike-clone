@@ -13,6 +13,7 @@ interface Database {
     on_sale: boolean;
   };
   shopping_cart: {
+    id?: number;
     user_id: number;
     product_id: number;
     quantity: number;

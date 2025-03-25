@@ -283,12 +283,13 @@ app.post(
   },
 )
 
-app.delete("/api/carrito/:referenceNumber", async (req: Request, res: Response): Promise<void> => {
-  const referenceNumber = Number(req.params.referenceNumber)
+app.delete("/api/carrito/:id", async (req: Request, res: Response): Promise<void> => {
+ 
+  const id = Number(req.params.id)
   try {
     const deletedProduct = await db
       .deleteFrom("shopping_cart")
-      .where("product_id", "=", referenceNumber)
+      .where("id", "=", id)
       .executeTakeFirst()
     if (!deletedProduct) {
       res.status(404).json({ error: "Producto no encontrado en el carrito" })
