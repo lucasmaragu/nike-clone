@@ -18,7 +18,7 @@ export class LoginComponent {
   });
 
   loginError: string | null = null;
-
+  
   constructor(private authService: AuthService, private router: Router) {
     effect(() => {
       const status = this.authService.loginStatus();
@@ -34,9 +34,9 @@ export class LoginComponent {
       }
     });
   }
-
   onSubmit() {
     const { email, password } = this.loginForm.value;
+ 
 
     if (!email || !password) {
       this.loginError = 'Todos los campos son obligatorios';

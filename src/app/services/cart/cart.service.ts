@@ -102,20 +102,49 @@ export class CartService {
     });
   }
   
-  updateQuantity(item: CartItem, newQuantity: number): void {
-    if (newQuantity < 1 || newQuantity > item.product.stock) return;
-    
-    const updatedCart = this.cartSignal().map(cartItem => 
-      cartItem.id === item.id 
-        ? { ...cartItem, quantity: newQuantity as Number } 
-        : cartItem
-    );
-    
-    this.cartSignal.set(updatedCart);
+  updateQuantity(item: CartItem, type: string): void {
+    if (type === "increase" && Number(item.quantity) === 10) {
+      console.warn("🛑 No se pueden añadir más de 10 productos en la cesta");
+      return;
+    }
+    if (type === "decrease" && Number(item.quantity) === 1) {
+      console.warn("🛑 No se pueden eliminar más de 1 producto en la cesta");
+      return;
+    }
+  
+    const newQuantity = type === "increase" ? Number(item.quantity) + 1 : Number(item.quantity) - 1;
+  
+    const userId = this.userId; // Obtener el userId del signal
+  
+    if (!userId) {
+      console.error("❌ Error: No hay usuario logueado.");
+      return;
+    }
+  
+    // Actualizar en el backend
+    this.http.patch(`${this.apiUrl}/carrito/${item.id}`, {
+      userId,
+      product_id: item.product_id,
+      quantity: newQuantity,
+    }).subscribe({
+      next: () => {
+        console.log(`✅ Cantidad actualizada en el servidor: ${newQuantity}`);
+  
+        // Actualizar el carrito localmente
+        const updatedCart = this.cartSignal().map((cartItem) =>
+          cartItem.id === item.id ? { ...cartItem, quantity: newQuantity } : cartItem
+        );
+  
+        this.cartSignal.set(updatedCart);
+      },
+      error: (err) => {
+        console.error("❌ Error al actualizar la cantidad:", err);
+      }
+    });
   }
   
+  
   removeFromCart(item: CartItem): void {
-    console.log("Item a eliminar:", item);
       this.http.delete(`${this.apiUrl}/carrito/${item.id}`).subscribe({
       next: () => {
         console.log(`Producto ${item.product.name} eliminado del carrito`);

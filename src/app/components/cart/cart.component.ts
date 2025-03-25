@@ -40,13 +40,16 @@ export class CartComponent {
   }
 
   // Métodos que ahora llaman a los del servicio
-  updateQuantity(item: CartItem, newQuantity: number): void {
-    this.cartService.updateQuantity(item, newQuantity);
+  updateQuantity(item: CartItem, type: string): void {
+    this.cartService.updateQuantity(item, type);
   }
 
   removeItem(item: CartItem): void {
+
     this.cartService.removeFromCart(item);
   }
+
+
 
   comprarPedido(): void {
     this.cartService.buyCart();

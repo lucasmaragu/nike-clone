@@ -60,7 +60,8 @@
                   <!-- Quantity Selector with improved styling -->
                   <div class="flex items-center border border-gray-300 rounded-full">
                     <button 
-                      class="p-1.5 rounded-full text-gray-600 hover:bg-gray-100 focus:outline-none"
+                    (click)="updateQuantity(item, 'decrease')"
+                      class="p-1.5 rounded-full text-gray-600 cursor-pointer hover:bg-gray-100 focus:outline-none"
                       
                     >
                       <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -69,7 +70,8 @@
                     </button>
                     <span class="px-4 text-sm font-medium">{{ item.quantity }}</span>
                     <button 
-                      class="p-1.5 rounded-full text-gray-600 hover:bg-gray-100 focus:outline-none"
+                    (click)="updateQuantity(item, 'increase')"
+                      class="p-1.5 rounded-full cursor-pointer text-gray-600 hover:bg-gray-100 focus:outline-none"
                       
                     >
                       <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

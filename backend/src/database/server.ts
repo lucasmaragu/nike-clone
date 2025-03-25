@@ -182,7 +182,7 @@ app.get("/api/products/:referenceNumber", async (req: Request, res: Response): P
 
 app.get("/api/carrito", async (req: Request, res: Response): Promise<void> => {
   try {
-    console.log("Obteniendo carrito")
+    
     const cart = await db.selectFrom("shopping_cart").selectAll().execute()
     console.log(cart)
     res.status(200).json({ cart })
@@ -301,6 +301,41 @@ app.delete("/api/carrito/:id", async (req: Request, res: Response): Promise<void
     res.status(500).json({ error: "Error al eliminar producto del carrito" })
   }
 })
+
+app.patch("/api/carrito/:id", async (req: Request, res: Response): Promise<void> => {
+  const cartItemId = Number(req.params.id);
+  const { userId, product_id, quantity } = req.body;
+
+  if (!cartItemId || !userId || !product_id || quantity < 1) {
+    res.status(400).json({ error: "Datos inválidos" });
+    return;
+  }
+
+  console.log("📌 Actualizando cantidad:", { cartItemId, userId, product_id, quantity });
+
+  try {
+    const updatedCartItem = await db
+      .updateTable("shopping_cart")
+      .set({ quantity })
+      .where("id", "=", cartItemId)
+      .where("user_id", "=", userId)
+      .where("product_id", "=", product_id)
+      .executeTakeFirst();
+
+    if (!updatedCartItem) {
+      res.status(404).json({ error: "Producto no encontrado en el carrito" });
+      return;
+    }
+
+    res.status(200).json({ message: "Cantidad actualizada correctamente" });
+  } catch (error) {
+    console.error("❌ Error al actualizar la cantidad:", error);
+    res.status(500).json({ error: "Error al actualizar la cantidad" });
+  }
+});
+
+
+
 
 // Iniciar el servidor
 app.listen(port, () => {

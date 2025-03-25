@@ -26,9 +26,11 @@ export class AuthService {
   constructor(private http: HttpClient) {
     // Comprobar si estamos en el cliente (navegador)
     if (typeof window !== 'undefined') {
+      const storedUserId = localStorage.getItem('userId');
       const storedRole = localStorage.getItem('role');
       const storedToken = localStorage.getItem('token');
-      if (storedRole && storedToken) {
+      if (storedRole && storedToken && storedUserId) {
+        this.userIdSignal.set(Number(storedUserId)); 
         this.roleSignal.set(storedRole); // Restaurar el rol desde localStorage
         this.loginStatus.set({ email: '', token: storedToken, role: storedRole }); // Restaurar el loginStatus
       }
@@ -56,8 +58,8 @@ export class AuthService {
         this.usernameSignal.set(response.email);  // Establecer el username en el signal
         this.userIdSignal.set(response.id);  // Establecer el userId en el signal 
       
-       localStorage.setItem('username', response.email);
-   
+        localStorage.setItem('username', response.email);
+        localStorage.setItem('userId', response.id.toString());
         localStorage.setItem('role', response.role);
         localStorage.setItem('token', response.token);
      
@@ -91,10 +93,14 @@ export class AuthService {
 
   // Puedes agregar un método para hacer logout si lo necesitas
   logout(): void {
+    localStorage.removeItem('username'); // Eliminar el username de localStorage
+    localStorage.removeItem('userId'); // Eliminar el userId de localStorage
     localStorage.removeItem('role'); // Eliminar el rol de localStorage
     localStorage.removeItem('token'); // Eliminar el token de localStorage
     this.roleSignal.set(null);
     this.loginStatus.set(null);
+    this.usernameSignal.set(null);
+    this.userIdSignal.set(null);
   }
 
   
