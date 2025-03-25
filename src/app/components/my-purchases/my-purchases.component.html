@@ -1,0 +1,132 @@
+<div class="bg-white min-h-screen">
+    <!-- Purchases Header -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h1 class="text-3xl font-bold text-gray-900">Mis Compras</h1>
+      <p class="text-sm text-gray-500 mt-1">{{ purchases.length }} pedidos realizados</p>
+    </div>
+  
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+      </div>
+  
+      <!-- Error State -->
+      <div *ngIf="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <p>{{ error }}</p>
+      </div>
+  
+      <!-- Purchases List -->
+      <div *ngIf="!loading && !error && purchases.length > 0" class="space-y-8">
+        <div *ngFor="let purchase of purchases" class="bg-[#F5F5F5] rounded-lg overflow-hidden shadow-sm">
+          <!-- Purchase Header -->
+          <div class="bg-gray-100 px-6 py-4 border-b border-gray-200">
+            <div class="flex flex-wrap items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-500">Pedido #{{ purchase.id }}</p>
+                <p class="text-sm font-medium">{{ purchase.created_at  }}</p>
+              </div>
+              <div class="flex items-center space-x-4">
+                <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  Completado
+                </span>
+                <p class="font-bold text-gray-900">{{ purchase.total_price.toFixed(2) }} €</p>
+              </div>
+            </div>
+          </div>
+  
+          <!-- Purchase Items -->
+          <div class="divide-y divide-gray-200">
+            <div *ngFor="let item of purchase.items" class="p-6 flex">
+              <!-- Product Image -->
+              <div class="flex-shrink-0 w-24 h-24 bg-[#F5F5F5] overflow-hidden rounded-md">
+                <img [src]="item.product?.image_url" [alt]="item.product?.name" class="w-full h-full object-center object-cover">
+              </div>
+  
+              <!-- Product Details -->
+              <div class="ml-6 flex-1 flex flex-col">
+                <div class="flex justify-between">
+                  <div>
+                    <!-- Reference Number -->
+                    <p class="text-xs text-gray-500 mb-1">Ref: {{ item.product?.reference_number }}</p>
+                    <h3 class="text-base font-medium text-gray-900">{{ item.product?.name }}</h3>
+                    
+                    <!-- Product Type -->
+                    <p class="mt-1 text-sm text-gray-500">{{ item.product?.type }}</p>
+                    
+                    <!-- Quantity -->
+                    <p class="mt-1 text-sm text-gray-600">Cantidad: {{ item.quantity }}</p>
+                  </div>
+                  
+                  <!-- Price Section -->
+                  <div class="text-right">
+                    <p class="text-base font-medium text-gray-900">{{ item.price }} €</p>
+                    <p class="text-sm text-gray-500">Precio unitario</p>
+                    <p class="text-sm font-medium text-gray-900 mt-1">{{ (item.price * item.quantity).toFixed(2) }} €</p>
+                    <p class="text-xs text-gray-500">Total</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+          <!-- Purchase Summary -->
+          <div class="bg-white px-6 py-4 border-t border-gray-200">
+            <div class="flex justify-between items-center">
+              <div>
+                <p class="text-sm text-gray-600">{{ getTotalItems(purchase) }} artículos</p>
+              </div>
+              <div class="flex space-x-4">
+                <button class="text-sm text-gray-600 hover:text-black flex items-center">
+                  <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                  Ver factura
+                </button>
+                <button class="text-sm text-gray-600 hover:text-black flex items-center">
+                  <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                  </svg>
+                  Descargar detalles
+                </button>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Empty Purchases -->
+      <div *ngIf="!loading && !error && purchases.length === 0" class="flex flex-col justify-center items-center h-96">
+        <svg class="w-16 h-16 text-gray-300 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <p class="text-2xl font-bold text-gray-900 mb-2">No tienes compras realizadas</p>
+        <p class="text-gray-500 mb-6">Explora nuestros productos y realiza tu primera compra</p>
+        <a href="/productos" class="bg-black text-white py-3 px-8 rounded-full font-medium hover:bg-gray-900 transition-colors duration-200">
+          Ver productos
+        </a>
+      </div>
+  
+      <!-- Pagination -->
+      <div *ngIf="!loading && !error && purchases.length > 0" class="mt-12 flex justify-center">
+        <nav class="flex items-center space-x-2">
+          <button class="p-2 rounded-full border border-gray-300 text-gray-600 hover:bg-gray-50">
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          </button>
+          <button class="px-4 py-2 rounded-full bg-black text-white">1</button>
+          <button class="px-4 py-2 rounded-full text-gray-600 hover:bg-gray-100">2</button>
+          <button class="px-4 py-2 rounded-full text-gray-600 hover:bg-gray-100">3</button>
+          <button class="p-2 rounded-full border border-gray-300 text-gray-600 hover:bg-gray-50">
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </nav>
+      </div>
+    </div>
+  </div>
+  

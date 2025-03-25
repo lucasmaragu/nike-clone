@@ -59,7 +59,7 @@ export class CartComponent implements OnInit {
     this.cartService.removeFromCart(item);
   }
 
-
+  
 
   comprarPedido(): void {
     try {

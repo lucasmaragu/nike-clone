@@ -40,9 +40,10 @@
         </div>
         <div>
             <ul class="flex flex-row items-center justify-center font-bold py-1 ml-30 gap-x-10">
-                <li routerLink="/" class="cursor-pointer hover:underline">Home</li>
+                <li routerLink="" class="cursor-pointer hover:underline">Home</li>
                 <li routerLink="productos" class="cursor-pointer hover:underline">Productos</li>
                 <li *ngIf="role() === 'admin'" routerLink="admin" class="cursor-pointer hover:underline">Administrador</li>
+                <li routerLink="compras" class="cursor-pointer hover:underline">Mis Compras</li>
               </ul>
         </div>
         <div class="flex">

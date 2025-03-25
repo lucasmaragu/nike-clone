@@ -255,7 +255,7 @@ app.post("/api/carrito/comprar", async (req: Request, res: Response): Promise<vo
         shopping_id: shoppingId,
         product_id: item.product_id,
         quantity: item.quantity,
-        price: product.price,
+        price: product.price * item.quantity,
       };
     });
 
@@ -390,9 +390,48 @@ app.patch("/api/carrito/:id", async (req: Request, res: Response): Promise<void>
   }
 });
 
-
-
-
+app.get("/api/compras", async (req: Request, res: Response): Promise<void> => {
+  const userId = Number(req.headers['userid']);
+  console.log("🛍 Obteniendo compras para el usuario:", userId)
+  try {
+    const purchases = await db
+      .selectFrom("shopping")
+      .selectAll()
+      .where("user_id", "=", userId)
+      .execute()
+      res.status(200).json({ purchases })
+  }catch (error) {
+        console.error("Error al obtener compras:", error)
+        res.status(500).json({ error: "Error al obtener las compras" })
+      }
+    })
+    app.get("/api/compras/:id/items", async (req: Request, res: Response): Promise<void> => {
+      const userId = Number(req.headers["userid"])
+      const shoppingId = Number(req.params.id)
+    
+      try {
+        // Primero verificamos que la compra pertenezca al usuario
+        const purchase = await db
+          .selectFrom("shopping")
+          .selectAll()
+          .where("id", "=", shoppingId)
+          .where("user_id", "=", userId)
+          .executeTakeFirst()
+    
+        if (!purchase) {
+          res.status(404).json({ error: "Compra no encontrada" })
+          return
+        }
+    
+        // Obtenemos los items de la compra
+        const items = await db.selectFrom("shopping_item").selectAll().where("shopping_id", "=", shoppingId).execute()
+    
+        res.status(200).json({ items })
+      } catch (error) {
+        console.error("Error al obtener items de la compra:", error)
+        res.status(500).json({ error: "Error al obtener los items de la compra" })
+      }
+    })
 // Iniciar el servidor
 app.listen(port, () => {
   console.log(`Servidor Express corriendo en http://localhost:${port}`)
