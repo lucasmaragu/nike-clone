@@ -1,15 +1,19 @@
 import { Component, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { CartService, CartItem } from "../../services/cart/cart.service";
+import { SuccessModalComponent } from "../success-modal/success-modal.component";
 
 @Component({
   selector: "app-cart",
   templateUrl: "./cart.component.html",
   styleUrls: ["./cart.component.css"],
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SuccessModalComponent],
 })
 export class CartComponent implements OnInit {
+
+  modalMessage: string = "";
+  showModal: boolean = false;
   constructor(public cartService: CartService) {}
 
 
@@ -58,6 +62,13 @@ export class CartComponent implements OnInit {
 
 
   comprarPedido(): void {
-    this.cartService.buyCart();
+    try {
+    this.cartService.buyCart(this.total);
+  } catch (error) {
+    this.modalMessage = "Error al comprar el pedido";
+    this.showModal = true;
   }
+    this.showModal = true;
+    this.modalMessage = "Pedido realizado con éxito";
+}
 }

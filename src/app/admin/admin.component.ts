@@ -149,7 +149,7 @@ export class AdminComponent  {
       });
       this.formSubmitted = false;
     } else {
-      console.log("Error en el formulario");
+      console.log("Error en el formulario", this.AdminForm);
       this.markFormGroupTouched(this.AdminForm);
     }
   }

@@ -26,10 +26,17 @@ interface Database {
     role: string;
   };
   shopping: {
-    id: number;
+    id?: number;
     user_id: number;
     total_price: number;
-    created_at: string;
+    created_at: Date;
+  };
+  shopping_item: {
+    id?: number;
+    shopping_id: number;
+    product_id: number;
+    quantity: number;
+    price: number;
   };
 }
 

@@ -50,8 +50,9 @@
                 <!-- Price Section -->
                 <div class="text-right">
                   <p class="text-base font-medium text-gray-900">{{ item.product.price }} €</p>
-                  <p *ngIf="item.product.on_sale" class="text-sm text-gray-500 line-through">{{ item.product.price * 1.2 }} €</p>
-                </div>
+                  <p *ngIf="item.product.on_sale" class="text-sm text-gray-500 line-through">
+                    {{ (item.product.price * 1.2) | number:'1.2-2' }} €
+                  </p>                </div>
               </div>
 
               <!-- Actions -->
@@ -208,3 +209,4 @@
   </div>
 </div>
 
+<app-success-modal   [message]="modalMessage"  [show]="showModal" (close)="showModal = false"></app-success-modal>

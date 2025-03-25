@@ -200,49 +200,98 @@ app.get("/api/carrito", async (req: Request, res: Response): Promise<void> => {
 })
 
 app.post("/api/carrito/comprar", async (req: Request, res: Response): Promise<void> => {
-  const { user_id } = req.body
+  const { user_id, totalAmount } = req.body;
 
   try {
+    // Obtener el carrito de compras del usuario
     const cart = await db
       .selectFrom("shopping_cart")
       .selectAll()
       .where("user_id", "=", user_id)
-      .execute()
+      .execute();
 
     if (cart.length === 0) {
-      res.status(400).json({ error: "El carrito está vacío" })
-      return
+      res.status(400).json({ error: "El carrito está vacío" });
+      return;
     }
 
-    const products = await db.selectFrom("products").selectAll().execute()
+    // Crear un registro de compra en la tabla 'shopping'
+    const shopping = await db
+  .insertInto("shopping")
+  .values({
+    user_id: user_id,
+    total_price: totalAmount,
+    created_at: new Date(),
+  })
+  .returning("id")
+  .execute();
 
-    for (const item of cart) {
-      const product = products.find((p) => p.reference_number === item.product_id)
-      if (!product || product.stock < item.quantity) {
-        res.status(400).json({ error: "No hay suficiente stock" })
-        return
+  const shoppingId = shopping[0]?.id;
+
+    // Obtener los precios de los productos en el carrito
+    const productIds = cart.map((item) => item.product_id);
+    const products = await db
+      .selectFrom("products")
+      .select(["reference_number", "price", "stock"])
+      .where("reference_number", "in", productIds)
+      .execute();
+
+      if (shoppingId === undefined) {
+        throw new Error("No se pudo obtener el ID del carrito de compras.");
       }
-    }
+    // Mapear los items del carrito con su precio
+    const shopping_items = cart.map((item) => {
+      const product = products.find((p) => p.reference_number === item.product_id);
+      if (!product) {
+        throw new Error(`Producto con ID ${item.product_id} no encontrado`);
+      }
 
-    // for (const item of cart) {
-    //   const product = products.find((p) => p.reference_number === item.product_id)
-    //   await db
-    //     .update("products")
-    //     .set("stock", product.stock - item.quantity)
-    //     .where("reference_number", "=", item.product_id)
-    //     .execute()
-    // }
+      // Verificar stock disponible
+      if (product.stock < item.quantity) {
+        throw new Error(`Stock insuficiente para el producto con ID ${item.product_id}`);
+      }
 
-    await db.deleteFrom("shopping_cart").where("user_id", "=", user_id).execute()
+      return {
+        shopping_id: shoppingId,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        price: product.price,
+      };
+    });
 
-    res.status(200).json({ message: "Compra realizada con éxito" })
+    // Iniciar una transacción para garantizar la integridad de los datos
+    await db.transaction().execute(async (trx) => {
+      // Insertar los productos en la tabla 'shopping_item'
+      await trx.insertInto("shopping_item").values(shopping_items).execute();
+
+      // Actualizar el stock de los productos
+      for (const item of cart) {
+        await trx
+          .updateTable("products")
+          .set((eb) => ({
+            stock: eb("stock", "-", item.quantity)
+          }))
+          .where("reference_number", "=", item.product_id)
+          .execute();
+      }
+
+      // Eliminar los productos del carrito una vez realizada la compra
+      await trx.deleteFrom("shopping_cart").where("user_id", "=", user_id).execute();
+    });
+
+    res.status(200).json({ 
+      message: "Compra realizada con éxito", 
+      shopping_id: shoppingId 
+    });
+  } catch (error) {
+    console.error("Error al comprar:", error);
+    
+    // Proporcionar un mensaje de error más específico
+    const errorMessage = error instanceof Error ? error.message : "Error al procesar la compra";
+    res.status(500).json({ error: errorMessage });
   }
-  catch (error) {
-    console.error("Error al comprar:", error)
-    res.status(500).json({ error: "Error al comprar" })
-  }
-}
-)
+});
+
 
 function cleanupExpiredCartItems() {
   const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000); // 10 minutos

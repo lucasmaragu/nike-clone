@@ -41,6 +41,16 @@ async function createTables() {
     .addColumn('created_at', 'timestamp', (col) => col.defaultTo(sql`NOW()`))
     .addForeignKeyConstraint('shopping_user_fk', ['user_id'], 'users', ['id'])
     .execute();
+
+  await db.schema.createTable('shopping_item')
+    .addColumn('id', 'serial', (col) => col.primaryKey())
+    .addColumn('shopping_id', 'integer')
+    .addColumn('product_id', 'integer')
+    .addColumn('quantity', 'integer')
+    .addColumn('price', 'numeric')
+    .addForeignKeyConstraint('shopping_item_shopping_fk', ['shopping_id'], 'shopping', ['id'])
+    .addForeignKeyConstraint('shopping_item_product_fk', ['product_id'], 'products', ['reference_number']) // Ajuste a la nueva clave primaria
+    .execute();
 }
 
 createTables()

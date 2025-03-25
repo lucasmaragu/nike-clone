@@ -160,10 +160,9 @@ export class CartService {
     });
   }
 
-  buyCart(): void {
-    this.http.post(`${this.apiUrl}/carrito/comprar`, { user_id: this.userId }).subscribe({
+  buyCart(totalAmount: Number): void {
+    this.http.post(`${this.apiUrl}/carrito/comprar`, { user_id: this.userId, totalAmount: totalAmount }).subscribe({
       next: () => {
-        console.log("🛒 Compra realizada con éxito");
         this.fetchCart();
       },
       error: (err) => {
