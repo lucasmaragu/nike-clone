@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { CartService, CartItem } from "../../services/cart/cart.service";
 
@@ -9,8 +9,14 @@ import { CartService, CartItem } from "../../services/cart/cart.service";
   standalone: true,
   imports: [CommonModule],
 })
-export class CartComponent {
+export class CartComponent implements OnInit {
   constructor(public cartService: CartService) {}
+
+
+
+  ngOnInit(): void {
+    this.cartService.fetchCart();
+  }
 
   get cartItems(): CartItem[] {
     return this.cartService.cartSignal();

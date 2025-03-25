@@ -30,6 +30,7 @@ export class AuthService {
       const storedRole = localStorage.getItem('role');
       const storedToken = localStorage.getItem('token');
       if (storedRole && storedToken && storedUserId) {
+        // Si existe un usuario logueado previamente, restaura la sesión
         this.userIdSignal.set(Number(storedUserId)); 
         this.roleSignal.set(storedRole); // Restaurar el rol desde localStorage
         this.loginStatus.set({ email: '', token: storedToken, role: storedRole }); // Restaurar el loginStatus
@@ -53,16 +54,17 @@ export class AuthService {
   login(email: string, password: string): void {
     this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, password }).subscribe({
       next: (response) => {
+        // Actualizamos el estado del login con la respuesta
         this.loginStatus.set(response);
         this.roleSignal.set(response.role); 
         this.usernameSignal.set(response.email);  // Establecer el username en el signal
-        this.userIdSignal.set(response.id);  // Establecer el userId en el signal 
-      
+        this.userIdSignal.set(response.id);  // Establecer el userId en el signal
+        
+        // Guardamos los datos en localStorage
         localStorage.setItem('username', response.email);
         localStorage.setItem('userId', response.id.toString());
         localStorage.setItem('role', response.role);
         localStorage.setItem('token', response.token);
-     
       },
       error: (err) => {
         this.loginStatus.set(err);
@@ -81,10 +83,8 @@ export class AuthService {
   }
 
   getUserId() {
-    console.log("userId" , this.userIdSignal());
     return this.userIdSignal();  // Devuelve el valor actual del signal 
   }
-
 
   // Método para verificar si el usuario está logueado
   isLoggedIn(): boolean {
@@ -93,15 +93,16 @@ export class AuthService {
 
   // Puedes agregar un método para hacer logout si lo necesitas
   logout(): void {
-    localStorage.removeItem('username'); // Eliminar el username de localStorage
-    localStorage.removeItem('userId'); // Eliminar el userId de localStorage
-    localStorage.removeItem('role'); // Eliminar el rol de localStorage
-    localStorage.removeItem('token'); // Eliminar el token de localStorage
+    // Eliminar el usuario de la sesión y del localStorage
+    localStorage.removeItem('username');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('role');
+    localStorage.removeItem('token');
+    
+    // Limpiar los signals
     this.roleSignal.set(null);
     this.loginStatus.set(null);
     this.usernameSignal.set(null);
     this.userIdSignal.set(null);
   }
-
-  
 }
