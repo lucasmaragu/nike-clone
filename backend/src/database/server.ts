@@ -181,9 +181,16 @@ app.get("/api/products/:referenceNumber", async (req: Request, res: Response): P
 })
 
 app.get("/api/carrito", async (req: Request, res: Response): Promise<void> => {
+  const userId = Number(req.headers['userid']);
+  console.log("🛒 Obteniendo carrito para el usuario:", userId);
   try {
     
-    const cart = await db.selectFrom("shopping_cart").selectAll().execute()
+    const cart = await db
+      .selectFrom("shopping_cart")
+      .select(["id", "product_id", "quantity"])
+      .where("user_id", "=", userId) // Filtramos solo por este usuario
+      .execute();
+
     console.log(cart)
     res.status(200).json({ cart })
   } catch (error) {

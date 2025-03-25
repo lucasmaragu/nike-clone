@@ -42,7 +42,14 @@ export class CartService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
     
-    this.http.get<CartResponse>(`${this.apiUrl}/carrito`).subscribe({
+    const userId = this.authService.getUserId();
+
+    const headers = {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`,  // Usamos el token si es necesario
+      'userId': `${userId}` // Agregar el userId en los headers
+    };
+ 
+    this.http.get<CartResponse>(`${this.apiUrl}/carrito`, { headers }).subscribe({
       next: (response) => {
         console.log("📦 Respuesta de la API:", response);
         const cartItems = response.cart;
