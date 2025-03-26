@@ -6,6 +6,7 @@ import { body, validationResult } from "express-validator"
 import cors from "cors"
 
 const app = express()
+
 app.use(cors())
 const port = 3000
 const JWT_SECRET = "secret"
@@ -184,7 +185,7 @@ app.get("/api/carrito", async (req: Request, res: Response): Promise<void> => {
   const userId = Number(req.headers['userid']);
   console.log("🛒 Obteniendo carrito para el usuario:", userId);
   try {
-    
+
     const cart = await db
       .selectFrom("shopping_cart")
       .select(["id", "product_id", "quantity"])
@@ -217,16 +218,16 @@ app.post("/api/carrito/comprar", async (req: Request, res: Response): Promise<vo
 
     // Crear un registro de compra en la tabla 'shopping'
     const shopping = await db
-  .insertInto("shopping")
-  .values({
-    user_id: user_id,
-    total_price: totalAmount,
-    created_at: new Date(),
-  })
-  .returning("id")
-  .execute();
+      .insertInto("shopping")
+      .values({
+        user_id: user_id,
+        total_price: totalAmount.toFixed(2),
+        created_at: new Date(),
+      })
+      .returning("id")
+      .execute();
 
-  const shoppingId = shopping[0]?.id;
+    const shoppingId = shopping[0]?.id;
 
     // Obtener los precios de los productos en el carrito
     const productIds = cart.map((item) => item.product_id);
@@ -236,9 +237,9 @@ app.post("/api/carrito/comprar", async (req: Request, res: Response): Promise<vo
       .where("reference_number", "in", productIds)
       .execute();
 
-      if (shoppingId === undefined) {
-        throw new Error("No se pudo obtener el ID del carrito de compras.");
-      }
+    if (shoppingId === undefined) {
+      throw new Error("No se pudo obtener el ID del carrito de compras.");
+    }
     // Mapear los items del carrito con su precio
     const shopping_items = cart.map((item) => {
       const product = products.find((p) => p.reference_number === item.product_id);
@@ -279,13 +280,13 @@ app.post("/api/carrito/comprar", async (req: Request, res: Response): Promise<vo
       await trx.deleteFrom("shopping_cart").where("user_id", "=", user_id).execute();
     });
 
-    res.status(200).json({ 
-      message: "Compra realizada con éxito", 
-      shopping_id: shoppingId 
+    res.status(200).json({
+      message: "Compra realizada con éxito",
+      shopping_id: shoppingId
     });
   } catch (error) {
     console.error("Error al comprar:", error);
-    
+
     // Proporcionar un mensaje de error más específico
     const errorMessage = error instanceof Error ? error.message : "Error al procesar la compra";
     res.status(500).json({ error: errorMessage });
@@ -310,7 +311,7 @@ function cleanupExpiredCartItems() {
 setInterval(() => {
 
   cleanupExpiredCartItems();
-}, 60 * 1000); 
+}, 60 * 1000);
 
 
 app.post(
@@ -340,7 +341,7 @@ app.post(
 )
 
 app.delete("/api/carrito/:id", async (req: Request, res: Response): Promise<void> => {
- 
+
   const id = Number(req.params.id)
   try {
     const deletedProduct = await db
@@ -399,39 +400,87 @@ app.get("/api/compras", async (req: Request, res: Response): Promise<void> => {
       .selectAll()
       .where("user_id", "=", userId)
       .execute()
-      res.status(200).json({ purchases })
-  }catch (error) {
-        console.error("Error al obtener compras:", error)
-        res.status(500).json({ error: "Error al obtener las compras" })
-      }
-    })
-    app.get("/api/compras/:id/items", async (req: Request, res: Response): Promise<void> => {
-      const userId = Number(req.headers["userid"])
-      const shoppingId = Number(req.params.id)
-    
-      try {
-        // Primero verificamos que la compra pertenezca al usuario
-        const purchase = await db
-          .selectFrom("shopping")
-          .selectAll()
-          .where("id", "=", shoppingId)
-          .where("user_id", "=", userId)
-          .executeTakeFirst()
-    
-        if (!purchase) {
-          res.status(404).json({ error: "Compra no encontrada" })
-          return
-        }
-    
-        // Obtenemos los items de la compra
-        const items = await db.selectFrom("shopping_item").selectAll().where("shopping_id", "=", shoppingId).execute()
-    
-        res.status(200).json({ items })
-      } catch (error) {
-        console.error("Error al obtener items de la compra:", error)
-        res.status(500).json({ error: "Error al obtener los items de la compra" })
-      }
-    })
+    res.status(200).json({ purchases })
+  } catch (error) {
+    console.error("Error al obtener compras:", error)
+    res.status(500).json({ error: "Error al obtener las compras" })
+  }
+})
+app.get("/api/compras/:id/items", async (req: Request, res: Response): Promise<void> => {
+  const userId = Number(req.headers["userid"])
+  console.log("📦 Obteniendo items de la compra para el usuario:", userId)
+  const shoppingId = Number(req.params.id)
+
+  try {
+    // Primero verificamos que la compra pertenezca al usuario
+    const purchase = await db
+      .selectFrom("shopping")
+      .selectAll()
+      .where("id", "=", shoppingId)
+      .where("user_id", "=", userId)
+      .executeTakeFirst()
+
+    if (!purchase) {
+      res.status(404).json({ error: "Compra no encontrada" })
+      return
+    }
+
+    // Obtenemos los items de la compra
+    const items = await db
+      .selectFrom("shopping_item")
+      .leftJoin("products", "products.reference_number", "shopping_item.product_id")
+      .select([
+        "shopping_item.id",
+        "shopping_item.shopping_id",
+        "shopping_item.product_id",
+        "shopping_item.quantity",
+        "shopping_item.price",
+      ])
+      // Seleccionamos los campos del producto individualmente
+      .select([
+        "products.reference_number as product_reference_number",
+        "products.name as product_name",
+        "products.description as product_description",
+        "products.price as product_price",
+        "products.type as product_type",
+        "products.image_url as product_image_url",
+        "products.on_sale as product_on_sale",
+        "products.stock as product_stock"
+      ])
+      .where("shopping_id", "=", shoppingId)
+      .execute()
+
+    // Transformamos los resultados para tener la estructura deseada
+    const transformedItems = items.map(item => {
+      // Solo creamos el objeto product si tenemos al menos el reference_number
+      const product = item.product_reference_number ? {
+        reference_number: item.product_reference_number,
+        name: item.product_name,
+        description: item.product_description,
+        price: item.product_price,
+        type: item.product_type,
+        image_url: item.product_image_url,
+        on_sale: item.product_on_sale,
+        stock: item.product_stock
+      } : undefined;
+
+      // Devolvemos el item con la estructura correcta
+      return {
+        id: item.id,
+        shopping_id: item.shopping_id,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        price: item.price,
+        product
+      };
+    });
+
+    res.status(200).json({ items: transformedItems })
+  } catch (error) {
+    console.error("Error al obtener items de la compra:", error)
+    res.status(500).json({ error: "Error al obtener los items de la compra" })
+  }
+})
 // Iniciar el servidor
 app.listen(port, () => {
   console.log(`Servidor Express corriendo en http://localhost:${port}`)

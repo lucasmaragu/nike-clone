@@ -14,19 +14,21 @@ export class MyPurchasesComponent implements OnInit {
 
   error: string | null = null;
   loading: boolean = false;
+
   constructor(private purchaseService: PurchaseService, authService: AuthService) {}
 
   ngOnInit(): void {
     // Llamar para cargar las compras y sus ítems
     this.purchaseService.fetchPurchases();
+    console.log(this.purchases);
   }
 
   getTotalItems(purchase: any): number {
     return purchase.items.length;
   }
 
-  // Definir el getter 'purchases' que accederá a la señal del servicio
   get purchases() {
+    console.log(this.purchaseService.purchasesSignal());
     return this.purchaseService.purchasesSignal();
   }
 }

@@ -18,19 +18,27 @@ interface ItemResponse {
   providedIn: "root",
 })
 export class PurchaseService {
+  userId: number | null = null;
   purchasesSignal = signal<Purchase[]>([]);
   loadingSignal = signal<boolean>(false);
   errorSignal = signal<string | null>(null);
   private apiUrl = "http://localhost:3000/api";
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   // Método para obtener las compras
   fetchPurchases(): void {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    this.http.get<PurchaseResponse>(`${this.apiUrl}/compras`).subscribe({
+    const userId = this.authService.getUserId();
+
+    const headers = {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`,  // Usamos el token si es necesario
+      'userId': `${userId}` // Agregar el userId en los headers
+    };
+
+    this.http.get<PurchaseResponse>(`${this.apiUrl}/compras`,  { headers }).subscribe({
       next: (response) => {
         const purchases = response.purchases;
 
@@ -42,7 +50,7 @@ export class PurchaseService {
 
         // Obtener los ítems de cada compra
         const itemRequests = purchases.map((purchase) =>
-          this.http.get<ItemResponse>(`${this.apiUrl}/compras/${purchase.id}/items`)
+          this.http.get<ItemResponse>(`${this.apiUrl}/compras/${purchase.id}/items`, { headers }), 
         );
 
         // Esperar que todas las solicitudes de ítems se completen
@@ -56,6 +64,7 @@ export class PurchaseService {
 
             // Actualizar la señal de compras
             this.purchasesSignal.set(purchasesWithItems);
+            
             this.loadingSignal.set(false);
           },
           error: (err) => {
