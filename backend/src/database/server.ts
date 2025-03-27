@@ -4,6 +4,7 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import { body, validationResult } from "express-validator"
 import cors from "cors"
+import { verifyToken, checkRole } from "../middleware/authMiddleware";
 
 const app = express()
 
@@ -359,7 +360,7 @@ app.delete("/api/carrito/:id", async (req: Request, res: Response): Promise<void
   }
 })
 
-app.patch("/api/carrito/:id", async (req: Request, res: Response): Promise<void> => {
+app.put("/api/carrito/:id", async (req: Request, res: Response): Promise<void> => {
   const cartItemId = Number(req.params.id);
   const { userId, product_id, quantity } = req.body;
 
@@ -368,7 +369,7 @@ app.patch("/api/carrito/:id", async (req: Request, res: Response): Promise<void>
     return;
   }
 
-  console.log("📌 Actualizando cantidad:", { cartItemId, userId, product_id, quantity });
+  console.log("📌 Reemplazando cantidad:", { cartItemId, userId, product_id, quantity });
 
   try {
     const updatedCartItem = await db
@@ -384,12 +385,13 @@ app.patch("/api/carrito/:id", async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    res.status(200).json({ message: "Cantidad actualizada correctamente" });
+    res.status(200).json({ message: "Cantidad reemplazada correctamente" });
   } catch (error) {
-    console.error("❌ Error al actualizar la cantidad:", error);
-    res.status(500).json({ error: "Error al actualizar la cantidad" });
+    console.error("❌ Error al reemplazar la cantidad:", error);
+    res.status(500).json({ error: "Error al reemplazar la cantidad" });
   }
 });
+
 
 app.get("/api/compras", async (req: Request, res: Response): Promise<void> => {
   const userId = Number(req.headers['userid']);

@@ -6,11 +6,12 @@ import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { CartComponent } from './components/cart/cart.component'; 
 import { MyPurchasesComponent } from './components/my-purchases/my-purchases.component';
+import { AuthGuard } from './guards/auth.guard';
 
 
 export const routes: Routes = [
     {path: '', component: LandingPageComponent},
-    {path: 'admin', component: AdminComponent},
+    {path: 'admin', component: AdminComponent, canActivate: [AuthGuard]},
     {path: 'productos', component: ProductListComponent},
     {path: 'login', component: LoginComponent},
     {path: 'register', component: RegisterComponent},

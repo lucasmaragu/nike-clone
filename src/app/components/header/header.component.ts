@@ -2,7 +2,7 @@ import { Component, OnInit, signal, effect } from '@angular/core';
 import { ProductService } from '../../services/product/product.service';
 import { CommonModule } from '@angular/common';
 import { Product } from '../../models/product';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
@@ -18,7 +18,7 @@ export class HeaderComponent{
 
 
 
-  constructor(private productService: ProductService, private authService: AuthService) {
+  constructor(private productService: ProductService, private authService: AuthService, private router: Router) {
     effect(() => {
       this.role.set(this.authService.getRole()); 
     }
@@ -28,6 +28,7 @@ export class HeaderComponent{
 
   logout(): void {
     this.authService.logout();
+    this.router.navigate(['/']);
   }  
 
 

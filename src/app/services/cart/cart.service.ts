@@ -129,7 +129,7 @@ export class CartService {
     }
   
     // Actualizar en el backend
-    this.http.patch(`${this.apiUrl}/carrito/${item.id}`, {
+    this.http.put(`${this.apiUrl}/carrito/${item.id}`, {
       userId,
       product_id: item.product_id,
       quantity: newQuantity,
