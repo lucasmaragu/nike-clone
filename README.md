@@ -8,21 +8,21 @@ Welcome to the Nike Clone project! This application is a replica of the official
 Table of Contents 📖
 --------------------
 
--   [Features]
+-   Features
 
--   [Prerequisites]
+-   Prerequisites
 
--   [Installation]
+-   Installation
 
--   [Configuration]
+-   Configuration
 
--   [Running the Application]
+-   Running the Application
 
--   [Usage]
+-   Usage
 
--   [Contributing]
+-   Contributing
 
--   [License]
+-   License
 
 Features ✨
 ----------
