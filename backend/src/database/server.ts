@@ -296,23 +296,25 @@ app.post("/api/carrito/comprar", async (req: Request, res: Response): Promise<vo
 
 
 function cleanupExpiredCartItems() {
-  const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000); // 10 minutos
-  console.log("Items to delete before:", tenMinutesAgo); // Ver qué fecha se está utilizando
+  const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000); // 10 minutos atrás
+  console.log("Items to delete before:", tenMinutesAgo.toLocaleString()); // Ver qué fecha se está utilizando
 
   db.deleteFrom("shopping_cart")
     .where("created_at", "<", tenMinutesAgo)
     .execute()
     .then((result) => {
+      console.log("Expired items deleted:", result);
     })
     .catch((error) => {
+      console.error("Error deleting expired items:", error);
     });
 }
 
-
+// Ejecutar cada 1 minuto (60,000 ms)
 setInterval(() => {
-
   cleanupExpiredCartItems();
 }, 60 * 1000);
+
 
 
 app.post(
