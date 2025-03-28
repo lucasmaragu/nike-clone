@@ -485,6 +485,167 @@ app.get("/api/compras/:id/items", async (req: Request, res: Response): Promise<v
     res.status(500).json({ error: "Error al obtener los items de la compra" })
   }
 })
+
+// Añadir estos endpoints al archivo server.ts
+
+// Obtener perfil de usuario
+app.get("/api/profile", async (req: Request, res: Response): Promise<void> => {
+  // Obtener el ID del usuario del token
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    res.status(401).json({ error: "No autorizado" });
+    return;
+  }
+
+  try {
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: number, email: string, role: string };
+    const userId = decoded.id;
+
+    const user = await db
+      .selectFrom("users")
+      .selectAll()
+      .where("id", "=", userId)
+      .executeTakeFirst();
+
+    if (!user) {
+      res.status(404).json({ error: "Usuario no encontrado" });
+      return;
+    }
+
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error("Error al obtener el perfil:", error);
+    res.status(500).json({ error: "Error al obtener el perfil del usuario" });
+  }
+});
+
+// Actualizar perfil de usuario
+app.put(
+  "/api/profile",
+  [
+    body("email").isEmail().optional(),
+    body("role").isString().optional(),
+  ],
+  async (req: Request, res: Response): Promise<void> => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({ errors: errors.array() });
+      return;
+    }
+
+    // Obtener el ID del usuario del token
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      res.status(401).json({ error: "No autorizado" });
+      return;
+    }
+
+    try {
+      const token = authHeader.split(' ')[1];
+      const decoded = jwt.verify(token, JWT_SECRET) as { id: number, email: string, role: string };
+      const userId = decoded.id;
+      const { email, role } = req.body;
+
+      // Verificar si el email ya está en uso por otro usuario
+      if (email) {
+        const existingUser = await db
+          .selectFrom("users")
+          .select("id")
+          .where("email", "=", email)
+          .where("id", "!=", userId)
+          .executeTakeFirst();
+
+        if (existingUser) {
+          res.status(400).json({ error: "El correo electrónico ya está en uso" });
+          return;
+        }
+      }
+
+      // Actualizar el perfil
+      const updatedUser = await db
+        .updateTable("users")
+        .set({
+          ...(email && { email }),
+          ...(role && { role })
+        })
+        .where("id", "=", userId)
+        .returningAll()
+        .executeTakeFirst();
+
+      if (!updatedUser) {
+        res.status(404).json({ error: "Usuario no encontrado" });
+        return;
+      }
+
+      res.status(200).json({ user: updatedUser });
+    } catch (error) {
+      console.error("Error al actualizar el perfil:", error);
+      res.status(500).json({ error: "Error al actualizar el perfil del usuario" });
+    }
+  }
+);
+
+// Cambiar contraseña
+app.put(
+  "/api/profile/password",
+  [body("currentPassword").isString().notEmpty(), body("newPassword").isString().isLength({ min: 6 })],
+  async (req: Request, res: Response): Promise<void> => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      res.status(400).json({ errors: errors.array() })
+      return
+    }
+
+    // Obtener el ID del usuario del token
+    const authHeader = req.headers.authorization
+    if (!authHeader) {
+      res.status(401).json({ error: "No autorizado" })
+      return
+    }
+
+    try {
+      const token = authHeader.split(" ")[1]
+      const decoded = jwt.verify(token, JWT_SECRET) as { id: number; email: string; role: string }
+      const userId = decoded.id
+      const { currentPassword, newPassword } = req.body
+
+      // Obtener el usuario con su contraseña actual
+      const user = await db.selectFrom("users").select(["id", "password"]).where("id", "=", userId).executeTakeFirst()
+
+      if (!user) {
+        res.status(404).json({ error: "Usuario no encontrado" })
+        return
+      }
+
+      // Verificar que la contraseña actual sea correcta
+      const isPasswordValid = await bcrypt.compare(currentPassword, user.password)
+      if (!isPasswordValid) {
+        res.status(400).json({ error: "La contraseña actual es incorrecta" })
+        return
+      }
+
+      // Hashear la nueva contraseña
+      const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+      // Actualizar la contraseña
+      await db
+        .updateTable("users")
+        .set({
+          password: hashedPassword,
+        })
+        .where("id", "=", userId)
+        .execute()
+
+      res.status(200).json({ message: "Contraseña actualizada correctamente" })
+    } catch (error) {
+      console.error("Error al cambiar la contraseña:", error)
+      res.status(500).json({ error: "Error al cambiar la contraseña" })
+    }
+  },
+)
+
+
 // Iniciar el servidor
 app.listen(port, () => {
   console.log(`Servidor Express corriendo en http://localhost:${port}`)
