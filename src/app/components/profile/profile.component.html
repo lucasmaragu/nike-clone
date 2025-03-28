@@ -33,7 +33,10 @@
                   {{ profileService.userProfile()?.email?.charAt(0)?.toUpperCase() }}
                 </div>
                 <div>
-                  <p class="font-medium text-gray-900">{{ profileForm.get('name')?.value || 'Usuario' }}</p>
+                  <p class="font-medium text-gray-900">
+                    {{ profileForm.get('role')?.value === 'admin' ? 'Administrador' : 'Usuario' }}
+                  </p>
+                  
                   <p class="text-sm text-gray-500">{{ profileService.userProfile()?.email }}</p>
                 </div>
               </div>
@@ -114,7 +117,7 @@
                     <button 
                       type="submit" 
                       [disabled]="profileForm.invalid || profileService.loading()"
-                      class="bg-black text-white py-2.5 px-6 rounded-full font-medium hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors duration-200"
+                      class="bg-black cursor-pointer text-white py-2.5 px-6 rounded-full font-medium hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors duration-200"
                     >
                       Guardar cambios
                     </button>

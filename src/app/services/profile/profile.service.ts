@@ -82,6 +82,7 @@ export class ProfileService {
     this.loading.set(true)
     this.error.set(null)
     this.success.set(null)
+    console.log(profileData)
 
     return this.http
       .put<{ user: UserProfile }>(`${this.apiUrl}/profile`, profileData, {

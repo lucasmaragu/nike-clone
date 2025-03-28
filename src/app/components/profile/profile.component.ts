@@ -31,7 +31,6 @@ export class ProfileComponent implements OnInit {
 
   initForms(): void {
     this.profileForm = this.fb.group({
-      name: ["", [Validators.required]],
       email: ["", [Validators.required, Validators.email]],
       role: ["", [Validators.required]],
     })
@@ -75,10 +74,8 @@ export class ProfileComponent implements OnInit {
   }
 
   updateProfile(): void {
-    if (this.profileForm.invalid) {
-      return
-    }
-
+   
+    console.log(this.profileForm.value)
     const profileData: ProfileUpdateRequest = {
       email: this.profileForm.value.email,
       role: this.profileForm.value.role,
