@@ -5,6 +5,7 @@ import { HttpClient } from "@angular/common/http";
 import { Purchase } from "../../models/purchase"; // Importa tu modelo de compra
 import { forkJoin } from "rxjs";
 import { AuthService } from "../auth/auth.service";
+import { HttpClientModule } from '@angular/common/http'; // Asegúrate de importar HttpClientModule
 
 interface PurchaseResponse {
   purchases: Purchase[];

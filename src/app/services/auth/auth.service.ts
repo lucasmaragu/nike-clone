@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
+
 // Creamos una interfaz para la respuesta del login
 interface LoginResponse {
   id: number;

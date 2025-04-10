@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientModule } from '@angular/common/http';  // Asegúrate de importar HttpClientMo dule
 import { CartComponent } from './cart.component';
 
 describe('CartComponent', () => {
@@ -8,7 +8,7 @@ describe('CartComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CartComponent]
+      imports: [CartComponent, HttpClientModule], // Asegúrate de importar HttpClientModule
     })
     .compileComponents();
 
