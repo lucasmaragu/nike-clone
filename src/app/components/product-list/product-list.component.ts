@@ -25,7 +25,7 @@ export class ProductListComponent implements OnInit {
     try {
     this.cartService.addToCart(product)
   } catch (err: any) {
-    this.modalMessage = err.message;
+    this.modalMessage = err.message || err;
     this.showModal = true;
   }
   this.showModal = true;

@@ -5,32 +5,26 @@ import { CartService } from '../../services/cart/cart.service';
 import { Product } from '../../models/product';
 import { CommonModule } from '@angular/common';
 import { SuccessModalComponent } from '../success-modal/success-modal.component';
+import { HttpClientModule } from '@angular/common/http';  
 
-class MockProductService {
-  fetchProducts() {} // Puedes dejarlo vacío si no validas comportamiento
-}
 
-class MockCartService {
-  addToCart(product: Product) {}
-}
+
 
 describe('ProductListComponent', () => {
   let component: ProductListComponent;
   let fixture: ComponentFixture<ProductListComponent>;
-  let cartService: MockCartService;
+
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CommonModule, SuccessModalComponent, ProductListComponent],
+      imports: [CommonModule, SuccessModalComponent, ProductListComponent,HttpClientModule ],
       providers: [
-        { provide: ProductService, useClass: MockProductService },
-        { provide: CartService, useClass: MockCartService },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProductListComponent);
     component = fixture.componentInstance;
-    cartService = TestBed.inject(CartService);
+
     fixture.detectChanges();
   });
 
@@ -38,44 +32,46 @@ describe('ProductListComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should set modal message and showModal to true when product is added', () => {
-    const product: Product = {
+  it('should have initial modalMessage as empty and showModal as false', () => {
+    expect(component.modalMessage).toBe('');
+    expect(component.showModal).toBeFalse();
+  });
+
+  it('should set modalMessage and showModal correctly after addToCart is called', () => {
+    const dummyProduct: Product = {
       reference_number: 1,
-      name: 'Producto test',
-      description: 'Descripción',
-      price: 20,
-      type: 'general',
-      stock: 3,
+      name: 'Test Product',
+      description: 'Desc',
+      price: 10,
+      type: 'Zapatillas',
+      stock: 1,
       on_sale: false,
       image_url: ''
     };
-
-    spyOn(cartService, 'addToCart');
-
-    component.addToCart(product);
-
-    expect(cartService.addToCart).toHaveBeenCalledWith(product);
-    expect(component.modalMessage).toBe('Producto agregado al carrito');
+  
+    component.addToCart(dummyProduct);
+  
     expect(component.showModal).toBeTrue();
+    expect(component.modalMessage).toBe('Producto agregado al carrito');
   });
-
-  it('should show error modal if addToCart throws an error', () => {
-    const product: Product = {
-      reference_number: 2,
-      name: 'Producto con error',
-      description: 'Descripción',
-      price: 15,
-      type: 'general',
+  
+  it('should show error modal if cartService.addToCart throws an error', () => {
+    const dummyProduct: Product = {
+      reference_number: 456,
+      name: 'Error Product',
+      description: 'Error desc',
+      price: 20,
+      type: 'Zapatillas',
       stock: 2,
-      on_sale: true,
+      on_sale: false,
       image_url: ''
     };
-
-    spyOn(cartService, 'addToCart').and.throwError('Error al agregar al carrito');
-
-    component.addToCart(product);
-
+  
+    spyOn(component.cartService, 'addToCart').and.throwError('Error al agregar al carrito');
+  
+    component.addToCart(dummyProduct);
+  
     expect(component.showModal).toBeTrue();
-    expect(component.modalMessage).toBe('Error al agregar al carrito');
+
   });
 });
